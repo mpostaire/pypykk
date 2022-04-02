@@ -47,8 +47,7 @@ class MyGame(arcade.Window):
         self.bullet_list = arcade.SpriteList()
 
         # Set up the player
-        self.player_sprite = Player("assets/treta gunberg.png",
-                                    SPRITE_SCALING, center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2)
+        self.player_sprite = Player(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2)
         self.player_list.append(self.player_sprite)
 
     def on_draw(self):
@@ -71,15 +70,15 @@ class MyGame(arcade.Window):
             self.player_sprite.change_y = -MOVEMENT_SPEED
         if self.left_pressed and not self.right_pressed:
             self.player_sprite.change_x = -MOVEMENT_SPEED
+            self.player_sprite.facing_direction = Direction.LEFT
         elif self.right_pressed and not self.left_pressed:
             self.player_sprite.change_x = MOVEMENT_SPEED
+            self.player_sprite.facing_direction = Direction.RIGHT
 
 
-    def shoot(self):
+    def shoot(self, delta_time):
         if self.bullet_time < BULLET_RATE:
             return
-
-        self.bullet_time = 0
 
         direction = None
         if self.shoot_up_pressed:
@@ -103,8 +102,22 @@ class MyGame(arcade.Window):
         else:
             return
 
-        self.bullet_list.append(Bullet(direction, "assets/bullet.png", SPRITE_SCALING,
-                                        center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y))
+        self.bullet_time = 0
+        
+        if direction in [Direction.LEFT, Direction.UP_LEFT, Direction.DOWN_LEFT]:
+            self.player_sprite.facing_direction = Direction.LEFT
+        elif direction in [Direction.RIGHT, Direction.UP_RIGHT, Direction.DOWN_RIGHT]:
+            self.player_sprite.facing_direction = Direction.RIGHT
+
+        bullet_x = 0
+        if self.player_sprite.facing_direction == Direction.LEFT:
+            bullet_x = self.player_sprite.center_x - self.player_sprite.width / 2
+        else:
+            bullet_x = self.player_sprite.center_x + self.player_sprite.width / 2
+
+        bullet_y = self.player_sprite.center_y - self.player_sprite.height / 4
+        self.bullet_list.append(Bullet(direction, "assets/bullet.png",
+                                        center_x=bullet_x, center_y=bullet_y))
 
 
     def on_update(self, delta_time):
@@ -114,7 +127,7 @@ class MyGame(arcade.Window):
         self.player_list.on_update(delta_time)
         self.bullet_list.on_update(delta_time)
 
-        self.shoot()
+        self.shoot(delta_time)
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -155,9 +168,13 @@ class MyGame(arcade.Window):
             self.update_player_speed()
         elif key == arcade.key.UP:
             self.shoot_up_pressed = False
+            self.update_player_speed() # update speed here to recompute facing direction
         elif key == arcade.key.DOWN:
             self.shoot_down_pressed = False
+            self.update_player_speed() # update speed here to recompute facing direction
         elif key == arcade.key.LEFT:
             self.shoot_left_pressed = False
+            self.update_player_speed() # update speed here to recompute facing direction
         elif key == arcade.key.RIGHT:
             self.shoot_right_pressed = False
+            self.update_player_speed() # update speed here to recompute facing direction

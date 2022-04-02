@@ -5,6 +5,7 @@ class Bullet(arcade.Sprite):
 
     def __init__(self, direction, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.scale = SPRITE_SCALING / 2
         self.direction = direction
 
     def on_update(self, delta_time):
