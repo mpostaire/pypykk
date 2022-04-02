@@ -33,6 +33,8 @@ class MyGame(arcade.Window):
         # Variables that will hold bullet lists
         self.bullet_list = None
 
+        self.particle_list = None
+
         # Track the current state of what key is pressed
         self.left_pressed = False
         self.right_pressed = False
@@ -79,13 +81,15 @@ class MyGame(arcade.Window):
         self.player_list = arcade.SpriteList()
         self.gun_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
+        self.particle_list = arcade.SpriteList()
 
         # Set up the player
-        self.player_sprite = Player(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2)
+        self.player_sprite = Player(self, center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2)
         self.player_list.append(self.player_sprite)
         self.scene.add_sprite_list(self.player_list)
-        self.scene.add_sprite_list(self.bullet_list)
         self.scene.add_sprite_list(self.gun_list)
+        self.scene.add_sprite_list(self.particle_list)
+        self.scene.add_sprite_list(self.bullet_list)
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["walls"]
         )
@@ -120,6 +124,7 @@ class MyGame(arcade.Window):
         self.player_list.draw(pixelated=True)
         self.gun_list.draw(pixelated=True)
         self.enemy_list.draw(pixelated=True)
+        self.particle_list.draw(pixelated=True)
         self.bullet_list.draw(pixelated=True)
 
 
@@ -212,8 +217,10 @@ class MyGame(arcade.Window):
         self.gun_list.on_update(self.player_sprite)
         self.bullet_list.on_update(delta_time)
         self.enemy_list.on_update(delta_time)
+        self.particle_list.on_update(delta_time)
 
         # entities collision logic
+        # collision on player's bullet
         for b in self.bullet_list:
             enemies_collided = arcade.check_for_collision_with_list(b, self.enemy_list)
             if enemies_collided:
@@ -221,6 +228,11 @@ class MyGame(arcade.Window):
                     self.bullet_list.remove(b)
             elif arcade.check_for_collision_with_list(b, self.scene["walls"]):
                 self.bullet_list.remove(b)
+        
+        # collision on player
+        enemies_collided = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
+        if enemies_collided:
+            self.player_sprite.hit(enemies_collided[0])
 
         # update player facing direction in function of shoot direction and movement direction
         if self.shoot_left_pressed:
