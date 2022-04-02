@@ -36,12 +36,27 @@ class MyGame(arcade.Window):
         self.shoot_down_pressed = False
 
         self.bullet_time = 0
+        self.level_idx = 0
+
 
         # Set the background color
         arcade.set_background_color(arcade.color.WHITE)
 
     def setup(self):
         """ Set up the game and initialize the variables. """
+        options = {
+            "walls": {
+                "hitbox_algorithm": "Simple"
+            },
+            "deco":{
+                "hitbox_algorithm": "None"
+            },
+            "objects": {
+                "hitbox_algorithm": "None"
+            }
+        }
+        self.level_tile_map = arcade.tilemap.load_tilemap("assets/levels/level0.json", TILE_SCALING, layer_options=options)
+        self.scene = arcade.Scene.from_tilemap(self.level_tile_map)
         # Sprite lists
         self.player_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
@@ -50,12 +65,19 @@ class MyGame(arcade.Window):
         self.player_sprite = Player("assets/treta gunberg.png",
                                     SPRITE_SCALING, center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2)
         self.player_list.append(self.player_sprite)
+        self.scene.add_sprite_list(self.player_list)
+        self.scene.add_sprite_list(self.bullet_list)
+        self.physics_engine = arcade.PhysicsEnginePlatformer(
+            self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["walls"]
+        )
+        self.player_sprite.center_x = SCREEN_WIDTH / 2
+        self.player_sprite.center_y = SCREEN_HEIGHT / 2
 
     def on_draw(self):
         """ Render the screen. """
         # Clear the screen
         self.clear()
-
+        self.scene.draw()
         # Draw all the sprites.
         self.player_list.draw()
         self.bullet_list.draw()
@@ -109,6 +131,7 @@ class MyGame(arcade.Window):
 
     def on_update(self, delta_time):
         """ Movement and game logic """
+        self.physics_engine.update()
         self.bullet_time += delta_time
 
         self.player_list.on_update(delta_time)
@@ -118,18 +141,15 @@ class MyGame(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
-        if key == arcade.key.Z:
-            self.up_pressed = True
-            self.update_player_speed()
-        elif key == arcade.key.S:
-            self.down_pressed = True
-            self.update_player_speed()
+        if key == arcade.key.SPACE:
+            if self.physics_engine.can_jump():
+                self.player_sprite.change_y = PLAYER_JUMP_SPEED
+                #arcade.play_sound(self.jump_sound)
         elif key == arcade.key.Q:
-            self.left_pressed = True
-            self.update_player_speed()
+            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.D:
-            self.right_pressed = True
-            self.update_player_speed()
+            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+
         elif key == arcade.key.UP:
             self.shoot_up_pressed = True
         elif key == arcade.key.DOWN:
