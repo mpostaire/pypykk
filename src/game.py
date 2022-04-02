@@ -67,6 +67,9 @@ class MyGame(arcade.Window):
             },
             "objects": {
                 "hitbox_algorithm": "None"
+            },
+            "water": {
+                "hitbox_algorithm": "Simple"
             }
         }
         self.level_tile_map = arcade.tilemap.load_tilemap("assets/levels/level0.json", TILE_SCALING, layer_options=options)
@@ -79,13 +82,23 @@ class MyGame(arcade.Window):
         self.player_list = arcade.SpriteList()
         self.gun_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
+        self.enemy_list = arcade.SpriteList()
 
         # Set up the player
         self.player_sprite = Player(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2)
         self.player_list.append(self.player_sprite)
-        self.scene.add_sprite_list(self.player_list)
-        self.scene.add_sprite_list(self.bullet_list)
-        self.scene.add_sprite_list(self.gun_list)
+        self.gun_sprite = Gun("assets/gun.png", center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y)
+        self.gun_list.append(self.gun_sprite)
+
+        enemy_spawn_list = list(filter(lambda x: 'enemy' in x.name and 'spawn' in x.name, self.level_tile_map.get_tilemap_layer('info').tiled_objects))
+        for point in enemy_spawn_list:
+            enemy = EvilCar(self)
+            enemy.center_x, enemy.center_y = object_coords_to_game_coords(point.coordinates, self.level_tile_map)
+            self.enemy_list.append(enemy)
+        self.scene.add_sprite_list_before('enemies', 'water',self.enemy_list)
+        self.scene.add_sprite_list_before('player', 'water',self.player_list)
+        self.scene.add_sprite_list_before('bullets', 'water',self.bullet_list)
+        self.scene.add_sprite_list_before('gun', 'water',self.gun_list)
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["walls"]
         )
@@ -93,17 +106,11 @@ class MyGame(arcade.Window):
         self.player_sprite.center_x, self.player_sprite.center_y = object_coords_to_game_coords(spawn_point.coordinates, self.level_tile_map)
 
         #Spawn enemies
-        self.enemy_list = arcade.SpriteList()
-        enemy_spawn_list = list(filter(lambda x: 'enemy' in x.name and 'spawn' in x.name, self.level_tile_map.get_tilemap_layer('info').tiled_objects))
-        for point in enemy_spawn_list:
-            enemy = EvilCar(self)
-            enemy.center_x, enemy.center_y = object_coords_to_game_coords(point.coordinates, self.level_tile_map)
-            self.enemy_list.append(enemy)
-        self.scene.add_sprite_list(self.enemy_list)
 
 
-        self.gun_sprite = Gun("assets/gun.png", center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y)
-        self.gun_list.append(self.gun_sprite)
+
+
+
 
     def on_draw(self):
         """ Render the screen. """
@@ -112,8 +119,10 @@ class MyGame(arcade.Window):
 
         # Activate our Camera
         self.camera.use()
+        for name, list in self.scene.name_mapping.items():
+            if name not in ['water', 'enemies', 'player', 'bullets', 'gun']:
+                self.scene[name].draw(pixelated=True)
 
-        self.scene.draw(pixelated=True)
 
         # Draw all the sprites.
 
@@ -121,6 +130,8 @@ class MyGame(arcade.Window):
         self.gun_list.draw(pixelated=True)
         self.enemy_list.draw(pixelated=True)
         self.bullet_list.draw(pixelated=True)
+
+        self.scene['water'].draw(pixelated=True)
 
 
     def center_camera_to_player(self):
