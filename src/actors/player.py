@@ -6,7 +6,7 @@ class Player(arcade.Sprite):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.scale = SPRITE_SCALING
-        self.facing_direction = Direction.LEFT
+        self.facing_direction = Direction.RIGHT
 
         self.player_textures = {
             Direction.RIGHT: arcade.load_spritesheet("assets/GirlyGirl_walkcycle_right.png", 240, 240, 5, 9),
