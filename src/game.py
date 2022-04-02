@@ -1,6 +1,7 @@
 import arcade
 from src.actors.player import Player
 from src.actors.evil_car import EvilCar
+from src.actors.gun import Gun
 from src.actors.bullet import Bullet
 from src.utils import object_coords_to_game_coords
 from src.constants import *
@@ -25,6 +26,9 @@ class MyGame(arcade.Window):
 
         # Set up the player info
         self.player_sprite = None
+
+        self.gun_list = None
+        self.gun_sprite = None
 
         # Variables that will hold bullet lists
         self.bullet_list = None
@@ -73,6 +77,7 @@ class MyGame(arcade.Window):
 
         # Sprite lists
         self.player_list = arcade.SpriteList()
+        self.gun_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
 
         # Set up the player
@@ -80,6 +85,7 @@ class MyGame(arcade.Window):
         self.player_list.append(self.player_sprite)
         self.scene.add_sprite_list(self.player_list)
         self.scene.add_sprite_list(self.bullet_list)
+        self.scene.add_sprite_list(self.gun_list)
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["walls"]
         )
@@ -96,6 +102,9 @@ class MyGame(arcade.Window):
         self.scene.add_sprite_list(self.enemy_list)
 
 
+        self.gun_sprite = Gun("assets/gun.png", center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y)
+        self.gun_list.append(self.gun_sprite)
+
     def on_draw(self):
         """ Render the screen. """
         # Clear the screen
@@ -107,9 +116,12 @@ class MyGame(arcade.Window):
         self.scene.draw(pixelated=True)
 
         # Draw all the sprites.
-        self.player_list.draw()
-        self.bullet_list.draw()
-        self.enemy_list.draw()
+
+        self.player_list.draw(pixelated=True)
+        self.gun_list.draw(pixelated=True)
+        self.bullet_list.draw(pixelated=True)
+        self.enemy_list.draw(pixelated=True)
+
 
     def center_camera_to_player(self):
         screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
@@ -150,11 +162,8 @@ class MyGame(arcade.Window):
 
         if self.left_pressed and not self.right_pressed:
             self.player_sprite.change_x = -MOVEMENT_SPEED * dt
-            self.player_sprite.facing_direction = Direction.LEFT
         elif self.right_pressed and not self.left_pressed:
             self.player_sprite.change_x = MOVEMENT_SPEED * dt
-            self.player_sprite.facing_direction = Direction.RIGHT
-
 
     def shoot(self, delta_time):
         if self.bullet_time < BULLET_RATE:
@@ -183,19 +192,14 @@ class MyGame(arcade.Window):
             return
 
         self.bullet_time = 0
-        
-        if direction in [Direction.LEFT, Direction.UP_LEFT, Direction.DOWN_LEFT]:
-            self.player_sprite.facing_direction = Direction.LEFT
-        elif direction in [Direction.RIGHT, Direction.UP_RIGHT, Direction.DOWN_RIGHT]:
-            self.player_sprite.facing_direction = Direction.RIGHT
 
         bullet_x = 0
         if self.player_sprite.facing_direction == Direction.LEFT:
-            bullet_x = self.player_sprite.center_x - self.player_sprite.width / 2
+            bullet_x = self.gun_sprite.center_x - self.gun_sprite.width / 2
         else:
-            bullet_x = self.player_sprite.center_x + self.player_sprite.width / 2
+            bullet_x = self.gun_sprite.center_x + self.gun_sprite.width / 2
 
-        bullet_y = self.player_sprite.center_y - self.player_sprite.height / 4
+        bullet_y = self.gun_sprite.center_y + self.gun_sprite.height / 4
         self.bullet_list.append(Bullet(direction, self.camera, self.player_sprite, "assets/bullet.png",
                                         center_x=bullet_x, center_y=bullet_y))
 
@@ -207,8 +211,23 @@ class MyGame(arcade.Window):
         self.bullet_time += delta_time
 
         self.player_list.on_update(delta_time)
+        self.gun_list.on_update(self.player_sprite)
         self.bullet_list.on_update(delta_time)
         self.enemy_list.on_update(delta_time)
+
+        for b in self.bullet_list:
+            if arcade.check_for_collision_with_list(b, self.scene["walls"]):
+                self.bullet_list.remove(b)
+
+        # update player facing direction in function of shoot direction and movement direction
+        if self.shoot_left_pressed:
+            self.player_sprite.facing_direction = Direction.LEFT
+        elif self.shoot_right_pressed:
+            self.player_sprite.facing_direction = Direction.RIGHT
+        elif self.left_pressed:
+            self.player_sprite.facing_direction = Direction.LEFT
+        elif self.right_pressed:
+            self.player_sprite.facing_direction = Direction.RIGHT
 
         self.shoot(delta_time)
 
@@ -245,13 +264,9 @@ class MyGame(arcade.Window):
             self.right_pressed = False
         elif key == arcade.key.UP:
             self.shoot_up_pressed = False
-            #self.update_player_speed() # update speed here to recompute facing direction
         elif key == arcade.key.DOWN:
             self.shoot_down_pressed = False
-            #self.update_player_speed() # update speed here to recompute facing direction
         elif key == arcade.key.LEFT:
             self.shoot_left_pressed = False
-            #self.update_player_speed() # update speed here to recompute facing direction
         elif key == arcade.key.RIGHT:
             self.shoot_right_pressed = False
-            #self.update_player_speed() # update speed here to recompute facing direction
