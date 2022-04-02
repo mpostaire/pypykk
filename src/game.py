@@ -1,6 +1,8 @@
 import arcade
 from src.actors.player import Player
 from src.actors.evil_car import EvilCar
+from src.actors.junk import Junk
+
 from src.actors.gun import Gun
 from src.actors.bullet import Bullet
 from src.utils import object_coords_to_game_coords
@@ -95,8 +97,11 @@ class MyGame(arcade.Window):
 
         enemy_spawn_list = list(filter(lambda x: 'enemy' in x.name and 'spawn' in x.name, self.level_tile_map.get_tilemap_layer('info').tiled_objects))
         for point in enemy_spawn_list:
-            enemy = EvilCar(self)
-            enemy.center_x, enemy.center_y = object_coords_to_game_coords(point.coordinates, self.level_tile_map)
+            cx, cy = object_coords_to_game_coords(point.coordinates, self.level_tile_map)
+            if 'car' in point.name:
+                enemy = EvilCar(self, center_x=cx, center_y=cy)
+            elif 'junk' in point.name:
+                enemy = Junk(self, center_x=cx, center_y=cy)
             self.enemy_list.append(enemy)
         self.scene.add_sprite_list_before('enemies', 'water',self.enemy_list)
         self.scene.add_sprite_list_before('player', 'water',self.player_list)
@@ -229,7 +234,10 @@ class MyGame(arcade.Window):
         self.bullet_list.on_update(delta_time)
         self.enemy_list.on_update(delta_time)
         self.particle_list.on_update(delta_time)
-
+        
+        water_collided = arcade.check_for_collision_with_list(self.player_sprite, self.scene['water'])
+        if len(water_collided) > 0:
+            self.player_sprite.die()
         # entities collision logic
         # collision on player's bullet
         for b in self.bullet_list:

@@ -1,6 +1,6 @@
 import arcade
 from src.constants import *
-
+import sys
 class Player(arcade.Sprite):
 
     def __init__(self, game, *args, **kwargs):
@@ -24,7 +24,11 @@ class Player(arcade.Sprite):
         self.blink = self.blink_ammount
 
         self.hp = 4
-
+    def die(self):
+        self.hp -= 0xFFFFFFFF
+        print("you ded.")
+        print("game over.")
+        sys.exit(0)
     def hit(self, enemy):
         if self.blink < self.blink_ammount:
             return False
