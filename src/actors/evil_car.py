@@ -25,6 +25,8 @@ class EvilCar(arcade.Sprite):
         self.gravity = 75
         self.scale = TILE_SCALING * 0.25
 
+        self.smoke_time = 0
+
         self.blink_time = 0
         self.blink_ammount = 4
         self.blink = self.blink_ammount
@@ -44,6 +46,16 @@ class EvilCar(arcade.Sprite):
                 self.texture_time = 0
                 self.cur_texture = 0
             self.texture = self.car_textures[self.facing_direction][self.cur_texture]
+
+        self.smoke_time += delta_time
+        if self.smoke_time > 0.5:
+            self.smoke_time = 0
+            smoke_x = 0
+            if self.facing_direction == Direction.RIGHT:
+                smoke_x = self.center_x - self.width / 2
+            else:
+                smoke_x = self.center_x + self.width / 2
+            particle.smoke(self.game, smoke_x, self.center_y)
 
     def on_update(self, delta_time):
         """ Move the player """
