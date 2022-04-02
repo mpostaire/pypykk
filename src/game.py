@@ -1,6 +1,7 @@
 import arcade
 from src.actors.player import Player
 from src.actors.bullet import Bullet
+from src.utils import object_coords_to_game_coords
 from src.constants import *
 
 class MyGame(arcade.Window):
@@ -48,7 +49,7 @@ class MyGame(arcade.Window):
 
 
         # Set the background color
-        arcade.set_background_color(arcade.color.WHITE)
+        arcade.set_background_color(arcade.color.SKY_BLUE)
 
     def setup(self):
         """ Set up the game and initialize the variables. """
@@ -81,8 +82,9 @@ class MyGame(arcade.Window):
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["walls"]
         )
-        self.player_sprite.center_x = SCREEN_WIDTH / 2
-        self.player_sprite.center_y = SCREEN_HEIGHT / 2
+        spawn_point = list(filter(lambda x: x.name == 'player_spawn', self.level_tile_map.get_tilemap_layer('info').tiled_objects))[0]
+        self.player_sprite.center_x, self.player_sprite.center_y = object_coords_to_game_coords(spawn_point.coordinates, self.level_tile_map)
+
 
     def on_draw(self):
         """ Render the screen. """
