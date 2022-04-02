@@ -1,98 +1,163 @@
-"""
-Starting Template
-
-Once you have learned how to use classes, you can begin your program with this
-template.
-
-If Python and Arcade are installed, this example can be run from the command line with:
-python -m arcade.examples.starting_template
-"""
 import arcade
-
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-SCREEN_TITLE = "Starting Template"
-
+from player import Player
+from bullet import Bullet
+from constants import *
 
 class MyGame(arcade.Window):
     """
     Main application class.
-
-    NOTE: Go ahead and delete the methods you don't need.
-    If you do need a method, delete the 'pass' and replace it
-    with your own code. Don't leave 'pass' in this program.
     """
 
     def __init__(self, width, height, title):
+        """
+        Initializer
+        """
+        # Call the parent class initializer
         super().__init__(width, height, title)
 
-        arcade.set_background_color(arcade.color.AMAZON)
+        # Variables that will hold sprite lists
+        self.player_list = None
 
-        # If you have sprite lists, you should create them here,
-        # and set them to None
+        # Set up the player info
+        self.player_sprite = None
+
+        # Variables that will hold bullet lists
+        self.bullet_list = None
+
+        # Track the current state of what key is pressed
+        self.left_pressed = False
+        self.right_pressed = False
+        self.up_pressed = False
+        self.down_pressed = False
+
+        self.shoot_left_pressed = False
+        self.shoot_right_pressed = False
+        self.shoot_up_pressed = False
+        self.shoot_down_pressed = False
+
+        self.bullet_time = 0
+
+        # Set the background color
+        arcade.set_background_color(arcade.color.WHITE)
 
     def setup(self):
-        """ Set up the game variables. Call to re-start the game. """
-        # Create your sprites and sprite lists here
-        pass
+        """ Set up the game and initialize the variables. """
+        # Sprite lists
+        self.player_list = arcade.SpriteList()
+        self.bullet_list = arcade.SpriteList()
+
+        # Set up the player
+        self.player_sprite = Player("assets/treta gunberg.png",
+                                    SPRITE_SCALING, center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2)
+        self.player_list.append(self.player_sprite)
 
     def on_draw(self):
-        """
-        Render the screen.
-        """
-
-        # This command should happen before we start drawing. It will clear
-        # the screen to the background color, and erase what we drew last frame.
+        """ Render the screen. """
+        # Clear the screen
         self.clear()
 
-        # Call draw() on all your sprite lists below
+        # Draw all the sprites.
+        self.player_list.draw()
+        self.bullet_list.draw()
+
+    def update_player_speed(self):
+        # Calculate speed based on the keys pressed
+        self.player_sprite.change_x = 0
+        self.player_sprite.change_y = 0
+
+        if self.up_pressed and not self.down_pressed:
+            self.player_sprite.change_y = MOVEMENT_SPEED
+        elif self.down_pressed and not self.up_pressed:
+            self.player_sprite.change_y = -MOVEMENT_SPEED
+        if self.left_pressed and not self.right_pressed:
+            self.player_sprite.change_x = -MOVEMENT_SPEED
+        elif self.right_pressed and not self.left_pressed:
+            self.player_sprite.change_x = MOVEMENT_SPEED
+
+
+    def shoot(self):
+        # TODO shoot diagonals
+        if self.bullet_time < BULLET_RATE:
+            return
+
+        self.bullet_time = 0
+
+        if self.shoot_up_pressed:
+            self.bullet_list.append(Bullet("up", "assets/bullet.png", SPRITE_SCALING,
+                                            center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y))
+        elif self.shoot_down_pressed:
+            self.bullet_time = 0
+            self.bullet_list.append(Bullet("down", "assets/bullet.png", SPRITE_SCALING,
+                                            center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y))
+        elif self.shoot_left_pressed:
+            self.bullet_time = 0
+            self.bullet_list.append(Bullet("left", "assets/bullet.png", SPRITE_SCALING,
+                                            center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y))
+        elif self.shoot_right_pressed:
+            self.bullet_time = 0
+            self.bullet_list.append(Bullet("right", "assets/bullet.png", SPRITE_SCALING,
+                                            center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y))
 
     def on_update(self, delta_time):
-        """
-        All the logic to move, and the game logic goes here.
-        Normally, you'll call update() on the sprite lists that
-        need it.
-        """
-        pass
+        """ Movement and game logic """
+        self.bullet_time += delta_time
 
-    def on_key_press(self, key, key_modifiers):
-        """
-        Called whenever a key on the keyboard is pressed.
+        self.player_list.on_update(delta_time)
+        self.bullet_list.on_update(delta_time)
 
-        For a full list of keys, see:
-        https://api.arcade.academy/en/latest/arcade.key.html
-        """
-        pass
+        self.shoot()
 
-    def on_key_release(self, key, key_modifiers):
-        """
-        Called whenever the user lets off a previously pressed key.
-        """
-        pass
+    def on_key_press(self, key, modifiers):
+        """Called whenever a key is pressed. """
+        if key == arcade.key.Z:
+            self.up_pressed = True
+            self.update_player_speed()
+        elif key == arcade.key.S:
+            self.down_pressed = True
+            self.update_player_speed()
+        elif key == arcade.key.Q:
+            self.left_pressed = True
+            self.update_player_speed()
+        elif key == arcade.key.D:
+            self.right_pressed = True
+            self.update_player_speed()
+        elif key == arcade.key.UP:
+            self.shoot_up_pressed = True
+        elif key == arcade.key.DOWN:
+            self.shoot_down_pressed = True
+        elif key == arcade.key.LEFT:
+            self.shoot_left_pressed = True
+        elif key == arcade.key.RIGHT:
+            self.shoot_right_pressed = True
 
-    def on_mouse_motion(self, x, y, delta_x, delta_y):
-        """
-        Called whenever the mouse moves.
-        """
-        pass
-
-    def on_mouse_press(self, x, y, button, key_modifiers):
-        """
-        Called when the user presses a mouse button.
-        """
-        pass
-
-    def on_mouse_release(self, x, y, button, key_modifiers):
-        """
-        Called when a user releases a mouse button.
-        """
-        pass
+    def on_key_release(self, key, modifiers):
+        """Called when the user releases a key. """
+        if key == arcade.key.Z:
+            self.up_pressed = False
+            self.update_player_speed()
+        elif key == arcade.key.S:
+            self.down_pressed = False
+            self.update_player_speed()
+        elif key == arcade.key.Q:
+            self.left_pressed = False
+            self.update_player_speed()
+        elif key == arcade.key.D:
+            self.right_pressed = False
+            self.update_player_speed()
+        elif key == arcade.key.UP:
+            self.shoot_up_pressed = False
+        elif key == arcade.key.DOWN:
+            self.shoot_down_pressed = False
+        elif key == arcade.key.LEFT:
+            self.shoot_left_pressed = False
+        elif key == arcade.key.RIGHT:
+            self.shoot_right_pressed = False
 
 
 def main():
     """ Main function """
-    game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    game.setup()
+    window = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    window.setup()
     arcade.run()
 
 
