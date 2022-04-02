@@ -42,8 +42,9 @@ class MyGame(arcade.Window):
 
         self.bullet_time = 0
         self.level_idx = 0
-        self.max_jumps = 2
+        self.max_air_jumps = 1
         self.n_jumps = 0
+        self.air_jump_ready = False
 
 
         # Set the background color
@@ -117,12 +118,21 @@ class MyGame(arcade.Window):
         self.player_sprite.change_x = 0
         #self.player_sprite.change_y = 0
         if self.physics_engine.can_jump():
+            self.air_jump_ready = False
+            self.n_jumps = 0
             self.jump_duration = PLAYER_JUMP_DURATION
             if self.up_pressed and not self.down_pressed:
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
         elif self.jump_duration > 0 and self.up_pressed:
             self.jump_duration -= dt
             self.player_sprite.change_y = PLAYER_JUMP_SPEED
+        elif not self.air_jump_ready and not self.up_pressed and self.n_jumps < self.max_air_jumps:
+            self.air_jump_ready = True
+            self.n_jumps += 1
+        elif self.air_jump_ready and self.up_pressed:
+            self.player_sprite.change_y = PLAYER_JUMP_SPEED
+            self.air_jump_ready = False
+            
 
 
         if self.left_pressed and not self.right_pressed:
