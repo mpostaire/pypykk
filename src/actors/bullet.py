@@ -5,7 +5,7 @@ class Bullet(arcade.Sprite):
 
     def __init__(self, direction, camera, player, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.scale = SPRITE_SCALING / 2
+        self.scale = SPRITE_SCALING
         self.direction = direction
         self.camera = camera
         self.player = player

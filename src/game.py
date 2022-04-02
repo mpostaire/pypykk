@@ -201,6 +201,10 @@ class MyGame(arcade.Window):
         self.gun_list.on_update(self.player_sprite)
         self.bullet_list.on_update(delta_time)
 
+        for b in self.bullet_list:
+            if arcade.check_for_collision_with_list(b, self.scene["walls"]):
+                self.bullet_list.remove(b)
+
         # update player facing direction in function of shoot direction and movement direction
         if self.shoot_left_pressed:
             self.player_sprite.facing_direction = Direction.LEFT
