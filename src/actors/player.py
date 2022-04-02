@@ -1,5 +1,5 @@
 import arcade
-from constants import *
+from src.constants import *
 
 class Player(arcade.Sprite):
 
