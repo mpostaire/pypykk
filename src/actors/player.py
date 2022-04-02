@@ -3,8 +3,9 @@ from src.constants import *
 
 class Player(arcade.Sprite):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, game, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.game = game
         self.scale = SPRITE_SCALING
         self.facing_direction = Direction.RIGHT
 
@@ -17,6 +18,28 @@ class Player(arcade.Sprite):
         self.texture = self.player_textures[self.facing_direction][self.cur_texture]
         self.texture_time = 0
         self.idle_status = 0
+
+        self.blink_time = 0
+        self.blink_ammount = 8
+        self.blink = self.blink_ammount
+
+        self.hp = 4
+
+    def hit(self, enemy):
+        if self.blink < self.blink_ammount:
+            return False
+
+        self.hp -= enemy.damage
+        print(f"player hit (hp = {self.hp})")
+
+        self.blink = 0
+        self.blink_time = 0
+
+        if self.hp <= 0:
+            print("GAME OVER")
+            exit()
+
+        return True
 
     def update_animation(self, delta_time):
         self.texture_time += delta_time
@@ -48,3 +71,12 @@ class Player(arcade.Sprite):
         self.center_y += self.change_y * delta_time
 
         self.update_animation(delta_time)
+
+        # blink on hit
+        self.blink_time += delta_time
+        if self.blink < self.blink_ammount and self.blink_time >= 0.06:
+            self.blink += 1
+            self.blink_time = 0
+            self.alpha = 255 if self.alpha == 0 else 0
+        elif self.blink >= self.blink_ammount:
+            self.alpha = 255

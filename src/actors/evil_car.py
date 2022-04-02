@@ -1,5 +1,6 @@
 import arcade
 from src.constants import *
+from src.particles.flower import FlowerParticle
 
 class EvilCar(arcade.Sprite):
 
@@ -27,6 +28,7 @@ class EvilCar(arcade.Sprite):
         self.blink = self.blink_ammount
 
         self.hp = 5
+        self.damage = 1
 
     def update_animation(self, delta_time):
         self.texture_time += delta_time
@@ -76,7 +78,8 @@ class EvilCar(arcade.Sprite):
 
         if self.hp <= 0:
             self.game.enemy_list.remove(self)
-        
+            self.game.particle_list.append(FlowerParticle(center_x=self.center_x, center_y=self.center_y))
+
         return True
 
     def think(self, dt):
