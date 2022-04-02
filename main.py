@@ -76,7 +76,6 @@ class MyGame(arcade.Window):
 
 
     def shoot(self):
-        # TODO shoot diagonals
         if self.bullet_time < BULLET_RATE:
             return
 
