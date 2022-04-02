@@ -15,6 +15,9 @@ class MyGame(arcade.Window):
         # Call the parent class initializer
         super().__init__(width, height, title)
 
+        # A Camera that can be used for scrolling the screen
+        self.camera = None
+
         # Variables that will hold sprite lists
         self.player_list = None
 
@@ -57,6 +60,10 @@ class MyGame(arcade.Window):
         }
         self.level_tile_map = arcade.tilemap.load_tilemap("assets/levels/level0.json", TILE_SCALING, layer_options=options)
         self.scene = arcade.Scene.from_tilemap(self.level_tile_map)
+
+        # Set up the Camera
+        self.camera = arcade.Camera(self.width, self.height)
+
         # Sprite lists
         self.player_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
@@ -76,10 +83,30 @@ class MyGame(arcade.Window):
         """ Render the screen. """
         # Clear the screen
         self.clear()
-        self.scene.draw()
+
+        # Activate our Camera
+        self.camera.use()
+
+        self.scene.draw(pixelated=True)
+
         # Draw all the sprites.
         self.player_list.draw()
         self.bullet_list.draw()
+
+    def center_camera_to_player(self):
+        screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
+        screen_center_y = self.player_sprite.center_y - (
+            self.camera.viewport_height / 2
+        )
+
+        # Don't let camera travel past 0
+        if screen_center_x < 0:
+            screen_center_x = 0
+        if screen_center_y < 0:
+            screen_center_y = 0
+        player_centered = screen_center_x, screen_center_y
+
+        self.camera.move_to(player_centered)
 
     def update_player_speed(self):
         # Calculate speed based on the keys pressed
@@ -151,6 +178,9 @@ class MyGame(arcade.Window):
         self.bullet_list.on_update(delta_time)
 
         self.shoot(delta_time)
+
+        # Position the camera
+        self.center_camera_to_player()
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
