@@ -1,5 +1,6 @@
 import arcade
 from src.constants import *
+from src.particles import particle
 from src.particles.flower import FlowerParticle
 
 class EvilCar(arcade.Sprite):
@@ -78,8 +79,7 @@ class EvilCar(arcade.Sprite):
 
         if self.hp <= 0:
             self.game.enemy_list.remove(self)
-            self.game.particle_list.append(FlowerParticle(center_x=self.center_x, center_y=self.center_y))
-
+            particle.flower_explosion(self.game, self.center_x, self.center_y)
         return True
 
     def think(self, dt):
