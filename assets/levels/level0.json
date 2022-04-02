@@ -30,6 +30,18 @@
                  "width":0,
                  "x":40,
                  "y":269.5
+                }, 
+                {
+                 "height":0,
+                 "id":2,
+                 "name":"enemy_car_spawn",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":121.909090909091,
+                 "y":256.363636363636
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -62,7 +74,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":2,
+ "nextobjectid":3,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.7.2",

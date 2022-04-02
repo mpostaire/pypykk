@@ -6,7 +6,7 @@ class Player(arcade.Sprite):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.scale = SPRITE_SCALING
-        self.facing_direction = Direction.RIGHT
+        self.facing_direction = Direction.LEFT
 
         self.player_textures = {
             Direction.RIGHT: arcade.load_spritesheet("assets/GirlyGirl_walkcycle_right.png", 240, 240, 5, 9),
@@ -29,7 +29,7 @@ class Player(arcade.Sprite):
                 self.texture_time = 0
                 self.cur_texture = 0
             self.texture = self.player_textures[self.facing_direction][self.cur_texture]
-
+        
     def on_update(self, delta_time):
         """ Move the player """
         self.center_x += self.change_x * delta_time

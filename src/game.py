@@ -1,5 +1,6 @@
 import arcade
 from src.actors.player import Player
+from src.actors.evil_car import EvilCar
 from src.actors.bullet import Bullet
 from src.utils import object_coords_to_game_coords
 from src.constants import *
@@ -85,6 +86,15 @@ class MyGame(arcade.Window):
         spawn_point = list(filter(lambda x: x.name == 'player_spawn', self.level_tile_map.get_tilemap_layer('info').tiled_objects))[0]
         self.player_sprite.center_x, self.player_sprite.center_y = object_coords_to_game_coords(spawn_point.coordinates, self.level_tile_map)
 
+        #Spawn enemies
+        self.enemy_list = arcade.SpriteList()
+        enemy_spawn_list = list(filter(lambda x: 'enemy' in x.name and 'spawn' in x.name, self.level_tile_map.get_tilemap_layer('info').tiled_objects))
+        for point in enemy_spawn_list:
+            enemy = EvilCar(self)
+            enemy.center_x, enemy.center_y = object_coords_to_game_coords(point.coordinates, self.level_tile_map)
+            self.enemy_list.append(enemy)
+        self.scene.add_sprite_list(self.enemy_list)
+
 
     def on_draw(self):
         """ Render the screen. """
@@ -99,6 +109,7 @@ class MyGame(arcade.Window):
         # Draw all the sprites.
         self.player_list.draw()
         self.bullet_list.draw()
+        self.enemy_list.draw()
 
     def center_camera_to_player(self):
         screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
@@ -197,6 +208,7 @@ class MyGame(arcade.Window):
 
         self.player_list.on_update(delta_time)
         self.bullet_list.on_update(delta_time)
+        self.enemy_list.on_update(delta_time)
 
         self.shoot(delta_time)
 
