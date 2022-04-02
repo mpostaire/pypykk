@@ -248,16 +248,13 @@ class MyGame(arcade.Window):
         self.player_list.on_update(delta_time)
         self.gun_list.on_update(self.player_sprite)
         self.bullet_list.on_update(delta_time)
-<<<<<<< HEAD
         self.enemy_list.on_update(delta_time)
         self.particle_list.on_update(delta_time)
         
         water_collided = arcade.check_for_collision_with_list(self.player_sprite, self.scene['water'])
         if len(water_collided) > 0:
             self.player_sprite.die()
-=======
 
->>>>>>> 8a968a00aeee725bb2305c57f29d935c962cc652
         # entities collision logic
         # collision on player's bullet
         for b in self.bullet_list:
