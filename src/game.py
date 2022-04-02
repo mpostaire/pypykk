@@ -5,6 +5,7 @@ from src.actors.gun import Gun
 from src.actors.bullet import Bullet
 from src.utils import object_coords_to_game_coords
 from src.constants import *
+from arcade import gui
 
 class MyGame(arcade.Window):
     """
@@ -54,6 +55,10 @@ class MyGame(arcade.Window):
         self.n_jumps = 0
         self.air_jump_ready = False
 
+        # --- Required for all code that uses UI element,
+        # a UIManager to handle the UI.
+        self.ui_manager = arcade.gui.UIManager()
+        self.ui_manager.enable()
 
         # Set the background color
         arcade.set_background_color(arcade.color.SKY_BLUE)
@@ -109,11 +114,18 @@ class MyGame(arcade.Window):
         spawn_point = list(filter(lambda x: x.name == 'player_spawn', self.level_tile_map.get_tilemap_layer('info').tiled_objects))[0]
         self.player_sprite.center_x, self.player_sprite.center_y = object_coords_to_game_coords(spawn_point.coordinates, self.level_tile_map)
 
+        # UI
+        self.health_label = arcade.gui.UITextArea(text=f"Health: {self.player_sprite.hp}",
+                                            x=16,
+                                            y=SCREEN_HEIGHT - 48,
+                                            width=450,
+                                            height=40,
+                                            font_size=18,
+                                            font_name="Kenney Future")
+
+        self.ui_manager.add(self.health_label)
+
         #Spawn enemies
-
-
-
-
 
 
     def on_draw(self):
@@ -137,6 +149,8 @@ class MyGame(arcade.Window):
         self.bullet_list.draw(pixelated=True)
 
         self.scene['water'].draw(pixelated=True)
+
+        self.ui_manager.draw()
 
 
     def center_camera_to_player(self):
@@ -224,11 +238,11 @@ class MyGame(arcade.Window):
         self.update_player_speed(delta_time)
         self.bullet_time += delta_time
 
+        self.enemy_list.on_update(delta_time)
+        self.particle_list.on_update(delta_time)
         self.player_list.on_update(delta_time)
         self.gun_list.on_update(self.player_sprite)
         self.bullet_list.on_update(delta_time)
-        self.enemy_list.on_update(delta_time)
-        self.particle_list.on_update(delta_time)
 
         # entities collision logic
         # collision on player's bullet
