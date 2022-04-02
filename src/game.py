@@ -34,6 +34,8 @@ class MyGame(arcade.Window):
         self.shoot_right_pressed = False
         self.shoot_up_pressed = False
         self.shoot_down_pressed = False
+        
+        self.jump_duration = PLAYER_JUMP_DURATION
 
         self.bullet_time = 0
         self.level_idx = 0
@@ -87,12 +89,15 @@ class MyGame(arcade.Window):
         # Calculate speed based on the keys pressed
         self.player_sprite.change_x = 0
         #self.player_sprite.change_y = 0
-
-        if  self.up_pressed and (self.physics_engine.can_jump() or self.n_jumps < self.max_jumps) and not self.down_pressed:
+        if self.physics_engine.can_jump():
+            self.jump_duration = PLAYER_JUMP_DURATION
+            if self.up_pressed and not self.down_pressed:
+                self.player_sprite.change_y = PLAYER_JUMP_SPEED
+        elif self.jump_duration > 0 and self.up_pressed:
+            self.jump_duration -= dt
             self.player_sprite.change_y = PLAYER_JUMP_SPEED
-            self.n_jumps += 1
-        elif self.physics_engine.can_jump():
-            self.n_jumps = 0
+
+
         if self.left_pressed and not self.right_pressed:
             self.player_sprite.change_x = -MOVEMENT_SPEED * dt
             self.player_sprite.facing_direction = Direction.LEFT
