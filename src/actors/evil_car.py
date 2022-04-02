@@ -17,9 +17,9 @@ class EvilCar(arcade.Sprite):
         self.texture = self.car_textures[self.facing_direction][self.cur_texture]
         self.texture_time = 0
         self.state = 'spawning'
-        self.speed = 50
+        self.speed = 300
         self.dir = 1
-        self.gravity = 50
+        self.gravity = 75
         self.scale = TILE_SCALING * 0.25
 
     def update_animation(self, delta_time):
@@ -63,6 +63,11 @@ class EvilCar(arcade.Sprite):
         else:
             if len(wall_hit_list) > 0:
                 self.dir *= - 1
+                if self.facing_direction == Direction.RIGHT:
+                    self.facing_direction = Direction.LEFT
+                else:
+                    self.facing_direction = Direction.RIGHT
+
             
 
 
