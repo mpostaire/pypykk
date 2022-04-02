@@ -8,6 +8,7 @@ from src.actors.bullet import Bullet
 from src.utils import object_coords_to_game_coords
 from src.constants import *
 from arcade import gui
+from src.particles.particle import flower_explosion
 
 class MyGame(arcade.Window):
     """
@@ -183,13 +184,17 @@ class MyGame(arcade.Window):
             self.jump_duration = PLAYER_JUMP_DURATION
             if self.up_pressed and not self.down_pressed:
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
+
         elif self.jump_duration > 0 and self.up_pressed:
             self.jump_duration -= dt
             self.player_sprite.change_y = PLAYER_JUMP_SPEED
+
         elif not self.air_jump_ready and not self.up_pressed and self.n_jumps < self.max_air_jumps:
             self.air_jump_ready = True
             self.n_jumps += 1
+
         elif self.air_jump_ready and self.up_pressed:
+            flower_explosion(self, self.player_sprite.center_x//2, self.player_sprite.center_y//2 - self.player_sprite.height//2, n_flowers=2)
             self.player_sprite.change_y = PLAYER_JUMP_SPEED
             self.air_jump_ready = False
 
