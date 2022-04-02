@@ -82,21 +82,31 @@ class MyGame(arcade.Window):
 
         self.bullet_time = 0
 
+        direction = None
         if self.shoot_up_pressed:
-            self.bullet_list.append(Bullet("up", "assets/bullet.png", SPRITE_SCALING,
-                                            center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y))
+            if self.shoot_left_pressed:
+                direction = Direction.UP_LEFT
+            elif self.shoot_right_pressed:
+                direction = Direction.UP_RIGHT
+            else:
+                direction = Direction.UP
         elif self.shoot_down_pressed:
-            self.bullet_time = 0
-            self.bullet_list.append(Bullet("down", "assets/bullet.png", SPRITE_SCALING,
-                                            center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y))
+            if self.shoot_left_pressed:
+                direction = Direction.DOWN_LEFT
+            elif self.shoot_right_pressed:
+                direction = Direction.DOWN_RIGHT
+            else:
+                direction = Direction.DOWN
         elif self.shoot_left_pressed:
-            self.bullet_time = 0
-            self.bullet_list.append(Bullet("left", "assets/bullet.png", SPRITE_SCALING,
-                                            center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y))
+            direction = Direction.LEFT
         elif self.shoot_right_pressed:
-            self.bullet_time = 0
-            self.bullet_list.append(Bullet("right", "assets/bullet.png", SPRITE_SCALING,
-                                            center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y))
+            direction = Direction.RIGHT
+        else:
+            return
+
+        self.bullet_list.append(Bullet(direction, "assets/bullet.png", SPRITE_SCALING,
+                                        center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y))
+
 
     def on_update(self, delta_time):
         """ Movement and game logic """

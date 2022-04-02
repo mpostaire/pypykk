@@ -9,14 +9,26 @@ class Bullet(arcade.Sprite):
 
     def on_update(self, delta_time):
         """ Move the bullet """
-        if self.direction == "up":
+        if self.direction == Direction.UP:
             self.center_y += BULLET_SPEED * delta_time
-        elif self.direction == "down":
+        elif self.direction == Direction.DOWN:
             self.center_y -= BULLET_SPEED * delta_time
-        elif self.direction == "right":
+        elif self.direction == Direction.RIGHT:
             self.center_x += BULLET_SPEED * delta_time
-        elif self.direction == "left":
+        elif self.direction == Direction.LEFT:
             self.center_x -= BULLET_SPEED * delta_time
+        elif self.direction == Direction.UP_LEFT:
+            self.center_x -= (BULLET_SPEED / 1.41) * delta_time
+            self.center_y += (BULLET_SPEED / 1.41) * delta_time
+        elif self.direction == Direction.UP_RIGHT:
+            self.center_x += (BULLET_SPEED / 1.41) * delta_time
+            self.center_y += (BULLET_SPEED / 1.41) * delta_time
+        elif self.direction == Direction.DOWN_LEFT:
+            self.center_x -= (BULLET_SPEED / 1.41) * delta_time
+            self.center_y -= (BULLET_SPEED / 1.41) * delta_time
+        elif self.direction == Direction.DOWN_RIGHT:
+            self.center_x += (BULLET_SPEED / 1.41) * delta_time
+            self.center_y -= (BULLET_SPEED / 1.41) * delta_time
 
         # Check for out-of-bounds
         if self.left < -self.width or self.right > SCREEN_WIDTH + self.width or self.top > SCREEN_HEIGHT + self.height or self.bottom < -self.height:
