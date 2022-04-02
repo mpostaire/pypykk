@@ -22,6 +22,12 @@ class EvilCar(arcade.Sprite):
         self.gravity = 75
         self.scale = TILE_SCALING * 0.25
 
+        self.blink_time = 0
+        self.blink_ammount = 4
+        self.blink = self.blink_ammount
+
+        self.hp = 5
+
     def update_animation(self, delta_time):
         self.texture_time += delta_time
 
@@ -49,7 +55,30 @@ class EvilCar(arcade.Sprite):
         self.center_y += self.change_y * delta_time
 
         self.update_animation(delta_time)
-    
+
+        # blink on hit
+        self.blink_time += delta_time
+        if self.blink < self.blink_ammount and self.blink_time >= 0.06:
+            self.blink += 1
+            self.blink_time = 0
+            self.alpha = 255 if self.alpha == 0 else 0
+        elif self.blink >= self.blink_ammount:
+            self.alpha = 255
+
+    def hit(self, bullet):
+        if self.blink < self.blink_ammount:
+            return False
+
+        self.hp -= bullet.damage
+
+        self.blink = 0
+        self.blink_time = 0
+
+        if self.hp <= 0:
+            self.game.enemy_list.remove(self)
+        
+        return True
+
     def think(self, dt):
         wall_hit_list = arcade.check_for_collision_with_list(
             self,

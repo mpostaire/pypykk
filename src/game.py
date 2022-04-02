@@ -119,8 +119,8 @@ class MyGame(arcade.Window):
 
         self.player_list.draw(pixelated=True)
         self.gun_list.draw(pixelated=True)
-        self.bullet_list.draw(pixelated=True)
         self.enemy_list.draw(pixelated=True)
+        self.bullet_list.draw(pixelated=True)
 
 
     def center_camera_to_player(self):
@@ -157,8 +157,6 @@ class MyGame(arcade.Window):
         elif self.air_jump_ready and self.up_pressed:
             self.player_sprite.change_y = PLAYER_JUMP_SPEED
             self.air_jump_ready = False
-            
-
 
         if self.left_pressed and not self.right_pressed:
             self.player_sprite.change_x = -MOVEMENT_SPEED * dt
@@ -200,7 +198,7 @@ class MyGame(arcade.Window):
             bullet_x = self.gun_sprite.center_x + self.gun_sprite.width / 2
 
         bullet_y = self.gun_sprite.center_y + self.gun_sprite.height / 4
-        self.bullet_list.append(Bullet(direction, self.camera, self.player_sprite, "assets/bullet.png",
+        self.bullet_list.append(Bullet(direction, self.camera, self.player_sprite,
                                         center_x=bullet_x, center_y=bullet_y))
 
 
@@ -215,8 +213,13 @@ class MyGame(arcade.Window):
         self.bullet_list.on_update(delta_time)
         self.enemy_list.on_update(delta_time)
 
+        # entities collision logic
         for b in self.bullet_list:
-            if arcade.check_for_collision_with_list(b, self.scene["walls"]):
+            enemies_collided = arcade.check_for_collision_with_list(b, self.enemy_list)
+            if enemies_collided:
+                if enemies_collided[0].hit(b):
+                    self.bullet_list.remove(b)
+            elif arcade.check_for_collision_with_list(b, self.scene["walls"]):
                 self.bullet_list.remove(b)
 
         # update player facing direction in function of shoot direction and movement direction

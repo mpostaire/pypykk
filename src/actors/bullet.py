@@ -1,14 +1,20 @@
 import arcade
 from src.constants import *
+import random
 
 class Bullet(arcade.Sprite):
 
     def __init__(self, direction, camera, player, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.scale = SPRITE_SCALING
+        self.scale = SPRITE_SCALING * 3
         self.direction = direction
         self.camera = camera
         self.player = player
+
+        bullet_textures = arcade.load_spritesheet("assets/flowers.png", 32, 32, 15, 45)
+        self.texture = bullet_textures[4]
+
+        self.damage = 1
 
     def on_update(self, delta_time):
         """ Move the bullet """
