@@ -81,20 +81,19 @@ class MyGame(arcade.Window):
         self.player_list.draw()
         self.bullet_list.draw()
 
-    def update_player_speed(self):
+    def update_player_speed(self, dt):
         # Calculate speed based on the keys pressed
         self.player_sprite.change_x = 0
-        self.player_sprite.change_y = 0
+        #self.player_sprite.change_y = 0
 
-        if self.up_pressed and not self.down_pressed:
-            self.player_sprite.change_y = MOVEMENT_SPEED
-        elif self.down_pressed and not self.up_pressed:
-            self.player_sprite.change_y = -MOVEMENT_SPEED
+        if self.up_pressed and self.physics_engine.can_jump() and not self.down_pressed:
+            self.player_sprite.change_y = PLAYER_JUMP_SPEED
+
         if self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x = -MOVEMENT_SPEED
+            self.player_sprite.change_x = -MOVEMENT_SPEED * dt
             self.player_sprite.facing_direction = Direction.LEFT
         elif self.right_pressed and not self.left_pressed:
-            self.player_sprite.change_x = MOVEMENT_SPEED
+            self.player_sprite.change_x = MOVEMENT_SPEED * dt
             self.player_sprite.facing_direction = Direction.RIGHT
 
 
@@ -145,6 +144,7 @@ class MyGame(arcade.Window):
     def on_update(self, delta_time):
         """ Movement and game logic """
         self.physics_engine.update()
+        self.update_player_speed(delta_time)
         self.bullet_time += delta_time
 
         self.player_list.on_update(delta_time)
@@ -155,14 +155,11 @@ class MyGame(arcade.Window):
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
         if key == arcade.key.Z:
-            if self.physics_engine.can_jump():
-                self.player_sprite.change_y = PLAYER_JUMP_SPEED
-                #arcade.play_sound(self.jump_sound)
+            self.up_pressed = True
         elif key == arcade.key.Q:
-            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+            self.left_pressed = True
         elif key == arcade.key.D:
-            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
-
+            self.right_pressed = True
         elif key == arcade.key.UP:
             self.shoot_up_pressed = True
         elif key == arcade.key.DOWN:
@@ -172,29 +169,26 @@ class MyGame(arcade.Window):
         elif key == arcade.key.RIGHT:
             self.shoot_right_pressed = True
 
+
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
         if key == arcade.key.Z:
             self.up_pressed = False
-            self.update_player_speed()
         elif key == arcade.key.S:
             self.down_pressed = False
-            self.update_player_speed()
         elif key == arcade.key.Q:
             self.left_pressed = False
-            self.update_player_speed()
         elif key == arcade.key.D:
             self.right_pressed = False
-            self.update_player_speed()
         elif key == arcade.key.UP:
             self.shoot_up_pressed = False
-            self.update_player_speed() # update speed here to recompute facing direction
+            #self.update_player_speed() # update speed here to recompute facing direction
         elif key == arcade.key.DOWN:
             self.shoot_down_pressed = False
-            self.update_player_speed() # update speed here to recompute facing direction
+            #self.update_player_speed() # update speed here to recompute facing direction
         elif key == arcade.key.LEFT:
             self.shoot_left_pressed = False
-            self.update_player_speed() # update speed here to recompute facing direction
+            #self.update_player_speed() # update speed here to recompute facing direction
         elif key == arcade.key.RIGHT:
             self.shoot_right_pressed = False
-            self.update_player_speed() # update speed here to recompute facing direction
+            #self.update_player_speed() # update speed here to recompute facing direction
