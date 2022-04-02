@@ -14,8 +14,8 @@ class FlowerParticle(arcade.Sprite):
         self.texture = random.choice(flower_textures)
         self.elapsed = 0
 
-        self.vel_x = random.uniform(-250, 250)
-        self.vel_y = random.uniform(-50, 750)
+        self.vel_x = random.uniform(-150, 150)
+        self.vel_y = random.uniform(50, 500)
 
     def on_update(self, delta_time):
         self.elapsed += delta_time
@@ -24,7 +24,7 @@ class FlowerParticle(arcade.Sprite):
         self.alpha = max(255 - (percent_elapsed * 255), 0)
 
         self.center_x += self.vel_x * delta_time
-        self.vel_y -= GRAVITY * 25
+        self.vel_y -= GRAVITY * 16
         self.center_y += self.vel_y * delta_time
 
         if self.elapsed >= PARTICLE_TIME:
