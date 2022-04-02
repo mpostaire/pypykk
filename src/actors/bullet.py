@@ -3,10 +3,12 @@ from src.constants import *
 
 class Bullet(arcade.Sprite):
 
-    def __init__(self, direction, *args, **kwargs):
+    def __init__(self, direction, camera, player, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.scale = SPRITE_SCALING / 2
         self.direction = direction
+        self.camera = camera
+        self.player = player
 
     def on_update(self, delta_time):
         """ Move the bullet """
@@ -32,5 +34,5 @@ class Bullet(arcade.Sprite):
             self.center_y -= (BULLET_SPEED / 1.41) * delta_time
 
         # Check for out-of-bounds
-        if self.left < -self.width or self.right > SCREEN_WIDTH + self.width or self.top > SCREEN_HEIGHT + self.height or self.bottom < -self.height:
+        if self.center_x > self.camera.position[0] + self.camera.viewport_width or self.center_x < self.camera.position[0] or self.center_y > self.camera.position[1] + self.camera.viewport_height or self.center_y < self.camera.position[1]:
             self.sprite_lists[0].remove(self)

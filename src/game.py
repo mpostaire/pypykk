@@ -183,7 +183,7 @@ class MyGame(arcade.Window):
             bullet_x = self.player_sprite.center_x + self.player_sprite.width / 2
 
         bullet_y = self.player_sprite.center_y - self.player_sprite.height / 4
-        self.bullet_list.append(Bullet(direction, "assets/bullet.png",
+        self.bullet_list.append(Bullet(direction, self.camera, self.player_sprite, "assets/bullet.png",
                                         center_x=bullet_x, center_y=bullet_y))
 
 
