@@ -81,11 +81,11 @@ class EvilCar(arcade.Sprite):
         elif self.blink >= self.blink_ammount:
             self.alpha = 255
 
-    def hit(self, bullet):
+    def hit(self, damage):
         if self.blink < self.blink_ammount:
             return False
 
-        self.hp -= bullet.damage
+        self.hp -= damage
 
         self.blink = 0
         self.blink_time = 0
@@ -93,6 +93,7 @@ class EvilCar(arcade.Sprite):
         if self.hp <= 0:
             self.game.enemy_list.remove(self)
             particle.flower_explosion(self.game, self.center_x, self.center_y)
+            self.game.score -= 2
         return True
 
     def think(self, dt):

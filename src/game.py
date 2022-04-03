@@ -25,6 +25,9 @@ class MyGame(arcade.Window):
         # A Camera that can be used for scrolling the screen
         self.camera = None
 
+        # TODO edit this following the total number of enemies in all the levels
+        self.score = 16
+
         # Variables that will hold sprite lists
         self.player_list = None
 
@@ -57,6 +60,8 @@ class MyGame(arcade.Window):
         self.max_air_jumps = 1
         self.n_jumps = 0
         self.air_jump_ready = False
+
+        self.game_over = False
 
         # Set the background color
         arcade.set_background_color(arcade.color.SKY_BLUE)
@@ -141,11 +146,29 @@ class MyGame(arcade.Window):
         self.scene['water'].draw(pixelated=True)
 
         # draw UI
-        arcade.draw_text(f"Gunberg's health: {self.player_sprite.hp}",
+        arcade.draw_text(f"Gunberg's health: {int(self.player_sprite.hp)}",
                         self.camera.position[0] + 16,
                         self.camera.position[1] + SCREEN_HEIGHT - 32,
                         arcade.color.BLACK,
                         18)
+
+        arcade.draw_text(f"Global warming: {int(self.score)}°C",
+                        self.camera.position[0] + SCREEN_WIDTH - 256,
+                        self.camera.position[1] + SCREEN_HEIGHT - 32,
+                        arcade.color.BLACK,
+                        18)
+
+        if self.game_over:
+            arcade.draw_text(f"GAME OVER",
+                            self.camera.position[0] + (SCREEN_WIDTH / 2) - 32,
+                            self.camera.position[1] + (SCREEN_HEIGHT / 2) + 32,
+                            arcade.color.BLACK,
+                            24)
+            arcade.draw_text(f"All hope is lost forever :'(",
+                            self.camera.position[0] + (SCREEN_WIDTH / 2) - 64,
+                            self.camera.position[1] + (SCREEN_HEIGHT / 2) + 8,
+                            arcade.color.BLACK,
+                            18)
 
 
     def center_camera_to_player(self):
@@ -238,6 +261,9 @@ class MyGame(arcade.Window):
 
     def on_update(self, delta_time):
         """ Movement and game logic """
+        if self.game_over:
+            return
+
         self.physics_engine.update()
         self.update_player_speed(delta_time)
         self.bullet_time += delta_time
@@ -252,14 +278,14 @@ class MyGame(arcade.Window):
         
         water_collided = arcade.check_for_collision_with_list(self.player_sprite, self.scene['water'])
         if len(water_collided) > 0:
-            self.player_sprite.die()
+            self.player_sprite.hit(4)
 
         # entities collision logic
         # collision on player's bullet
         for b in self.bullet_list:
             enemies_collided = arcade.check_for_collision_with_list(b, self.enemy_list)
             if enemies_collided:
-                if enemies_collided[0].hit(b):
+                if enemies_collided[0].hit(b.damage):
                     self.bullet_list.remove(b)
             elif arcade.check_for_collision_with_list(b, self.scene["walls"]):
                 self.bullet_list.remove(b)
@@ -267,7 +293,7 @@ class MyGame(arcade.Window):
         # collision on player
         enemies_collided = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
         if enemies_collided:
-            self.player_sprite.hit(enemies_collided[0])
+            self.player_sprite.hit(enemies_collided[0].damage)
 
         # update player facing direction in function of shoot direction and movement direction
         if self.shoot_left_pressed:
