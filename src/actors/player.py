@@ -30,7 +30,7 @@ class Player(arcade.Sprite):
             return False
 
         self.hp -= enemy.damage
-        self.game.health_label.text = f"Health: {self.hp}"
+        self.game.health_label = f"Gunberg's health: {self.hp}"
 
         self.blink = 0
         self.blink_time = 0
