@@ -25,6 +25,9 @@ class MyGame(arcade.Window):
         # A Camera that can be used for scrolling the screen
         self.camera = None
 
+        # TODO edit this following the total number of enemies in all the levels
+        self.score = 16
+
         # Variables that will hold sprite lists
         self.player_list = None
 
@@ -145,6 +148,12 @@ class MyGame(arcade.Window):
         # draw UI
         arcade.draw_text(f"Gunberg's health: {int(self.player_sprite.hp)}",
                         self.camera.position[0] + 16,
+                        self.camera.position[1] + SCREEN_HEIGHT - 32,
+                        arcade.color.BLACK,
+                        18)
+
+        arcade.draw_text(f"Global warming: {int(self.score)}°C",
+                        self.camera.position[0] + SCREEN_WIDTH - 256,
                         self.camera.position[1] + SCREEN_HEIGHT - 32,
                         arcade.color.BLACK,
                         18)

@@ -62,6 +62,7 @@ class Junk(arcade.Sprite):
         if self.hp <= 0:
             self.game.enemy_list.remove(self)
             particle.flower_explosion(self.game, self.center_x, self.center_y)
+            self.game.score -= 1
         return True
 
     def think(self, dt):
