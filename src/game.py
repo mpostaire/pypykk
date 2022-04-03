@@ -58,11 +58,6 @@ class MyGame(arcade.Window):
         self.n_jumps = 0
         self.air_jump_ready = False
 
-        # --- Required for all code that uses UI element,
-        # a UIManager to handle the UI.
-        self.ui_manager = arcade.gui.UIManager()
-        self.ui_manager.enable()
-
         # Set the background color
         arcade.set_background_color(arcade.color.SKY_BLUE)
 
@@ -120,17 +115,6 @@ class MyGame(arcade.Window):
         spawn_point = list(filter(lambda x: x.name == 'player_spawn', self.level_tile_map.get_tilemap_layer('info').tiled_objects))[0]
         self.player_sprite.center_x, self.player_sprite.center_y = object_coords_to_game_coords(spawn_point.coordinates, self.level_tile_map)
 
-        # UI
-        self.health_label = arcade.gui.UITextArea(text=f"Health: {self.player_sprite.hp}",
-                                            x=16,
-                                            y=SCREEN_HEIGHT - 48,
-                                            width=450,
-                                            height=40,
-                                            font_size=18,
-                                            font_name="Kenney Future")
-
-        self.ui_manager.add(self.health_label)
-
         #Spawn enemies
 
 
@@ -156,7 +140,12 @@ class MyGame(arcade.Window):
 
         self.scene['water'].draw(pixelated=True)
 
-        self.ui_manager.draw()
+        # draw UI
+        arcade.draw_text(f"Gunberg's health: {self.player_sprite.hp}",
+                        self.camera.position[0] + 16,
+                        self.camera.position[1] + SCREEN_HEIGHT - 32,
+                        arcade.color.BLACK,
+                        18)
 
 
     def center_camera_to_player(self):
@@ -294,6 +283,7 @@ class MyGame(arcade.Window):
 
         # Position the camera
         self.center_camera_to_player()
+
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
