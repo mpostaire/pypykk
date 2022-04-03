@@ -75,6 +75,8 @@ class AssetManager():
             "smoke": arcade.load_spritesheet("assets/smoke.png", 16, 16, 2, 3),
             "evil_car_right": arcade.load_spritesheet("assets/evil_car_0_right.png", 576//2, 118, 2, 2),
             "evil_car_left": arcade.load_spritesheet("assets/evil_car_0_left.png", 576//2, 118, 2, 2),
+            "boss_car_right": arcade.load_spritesheet("assets/very_evil_car_0_right.png", 576//2, 84, 2, 2),
+            "boss_car_left": arcade.load_spritesheet("assets/very_evil_car_0_left.png", 576//2, 84, 2, 2),
             "gunberg_right": arcade.load_spritesheet("assets/GirlyGirl_walkcycle_right.png", 240, 240, 5, 9),
             "gunberg_left": arcade.load_spritesheet("assets/GirlyGirl_walkcycle_left.png", 240, 240, 5, 9),
             "gun_right": arcade.load_texture("assets/gun.png"),

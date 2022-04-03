@@ -3,6 +3,7 @@ import arcade
 from src.actors.player import Player
 from src.actors.evil_car import EvilCar
 from src.actors.junk import Junk
+from src.actors.boss import Boss
 
 from src.actors.gun import Gun
 from src.actors.bullet import Bullet
@@ -119,6 +120,8 @@ class Level(arcade.View):
                 enemy = EvilCar(self, center_x=cx, center_y=cy)
             elif 'junk' in point.name:
                 enemy = Junk(self, center_x=cx, center_y=cy)
+            elif 'boss' in point.name:
+                enemy = Boss(self, center_x=cx, center_y=cy)
             self.enemy_list.append(enemy)
         self.scene.add_sprite_list_before('enemies', 'water',self.enemy_list)
         self.scene.add_sprite_list_before('player', 'water',self.player_list)
