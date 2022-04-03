@@ -165,12 +165,19 @@ class Level(arcade.View):
         self.scene['water'].draw(pixelated=True)
 
         # draw UI
+        arcade.draw_rectangle_filled(
+                self.camera.position[0] + 120,
+                self.camera.position[1] + SCREEN_HEIGHT - 25,
+                220, 32, (255, 255, 255, 200))
         arcade.draw_text(f"Gunberg's health: {int(self.player_sprite.hp)}",
                         self.camera.position[0] + 16,
                         self.camera.position[1] + SCREEN_HEIGHT - 32,
                         arcade.color.BLACK,
                         18)
-
+        arcade.draw_rectangle_filled(
+                self.camera.position[0] + SCREEN_WIDTH - 140,
+                self.camera.position[1] + SCREEN_HEIGHT - 25,
+                246, 32, (255, 255, 255, 200))
         arcade.draw_text(f"Global warming: {int(self.score)}°C",
                         self.camera.position[0] + SCREEN_WIDTH - 256,
                         self.camera.position[1] + SCREEN_HEIGHT - 32,
@@ -178,6 +185,10 @@ class Level(arcade.View):
                         18)
 
         if self.game_over:
+            arcade.draw_rectangle_filled(
+                self.camera.position[0] + (SCREEN_WIDTH / 2) + 64,
+                self.camera.position[1] + (SCREEN_HEIGHT / 2) + 32,
+                300, 64, (255, 255, 255, 200))
             arcade.draw_text(f"GAME OVER",
                             self.camera.position[0] + (SCREEN_WIDTH / 2) - 32,
                             self.camera.position[1] + (SCREEN_HEIGHT / 2) + 32,
