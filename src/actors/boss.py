@@ -71,7 +71,7 @@ class Boss(arcade.Sprite):
         """ Move the player """
         self.think(delta_time)
         self.change_x = self.speed * self.dir
-        self.change_y = (sin((self.time_alive + delta_time)*5) - sin(self.time_alive * 5)) * 500
+        self.change_y = (sin((self.time_alive + delta_time)*10) - sin(self.time_alive * 10)) * 300
         self.center_x += self.change_x * delta_time
         self.center_y += self.change_y * delta_time
 

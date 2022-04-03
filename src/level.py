@@ -266,8 +266,8 @@ class Level(arcade.View):
             self.n_jumps += 1
 
         elif self.air_jump_ready and self.up_pressed:
-
-            flower_explosion(self, flower_coordinates[0], flower_coordinates[1], n_flowers=3)
+            self.jump_duration = PLAYER_JUMP_DURATION
+            flower_explosion(self, flower_coordinates[0], flower_coordinates[1], n_flowers=3, muted=False)
             self.player_sprite.change_y = PLAYER_JUMP_SPEED
             self.air_jump_ready = False
 
