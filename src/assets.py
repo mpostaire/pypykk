@@ -38,7 +38,6 @@ class AssetManager():
 
 
     def load_assets(self):
-        # TODO add explosion sound
         self.sounds = {
             "game_over": arcade.load_sound("assets/yaaaoooow.wav"),
             "pew": [
@@ -61,6 +60,7 @@ class AssetManager():
                 arcade.load_sound("assets/oof_00.wav"),
                 arcade.load_sound("assets/oof_01.wav")
             ],
+            "explosion": arcade.load_sound("assets/boom_00.mp3"),
             "music": arcade.load_sound("assets/Gilles Stella - Libre de droit.m4a")
         }
 

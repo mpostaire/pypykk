@@ -62,11 +62,11 @@ class Menu(arcade.View):
         if self.explosion_time > self.explosion_max:
             self.explosion_time = 0
             self.explosion_max = random.uniform(0.5, 2)
-            particle.flower_explosion(self, random.randrange(64, SCREEN_WIDTH - 64), random.randrange(64, SCREEN_HEIGHT - 64))
+            particle.flower_explosion(self, random.randrange(64, SCREEN_WIDTH - 64), random.randrange(64, SCREEN_HEIGHT - 64), muted=True)
 
     def on_key_press(self, symbol, modifiers):
         if symbol == arcade.key.SPACE:
-            self.window.show_view(Level(0, self.ass, 16))
+            self.window.show_view(Level(1, self.ass, 24))
 
     def on_show_view(self):
         """ Called once when view is activated. """
