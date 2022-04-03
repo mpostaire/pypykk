@@ -84,6 +84,11 @@ class Level(arcade.View):
         """ Set up the game and initialize the variables. """
         options = {
             "walls": {
+                "use_spatial_hash": True,
+                "hitbox_algorithm": "Simple"
+            },
+            "invis_walls": {
+                "use_spatial_hash": True,
                 "hitbox_algorithm": "Simple"
             },
             "deco":{
@@ -129,7 +134,7 @@ class Level(arcade.View):
         self.scene.add_sprite_list_before('gun', 'water',self.gun_list)
         self.scene.add_sprite_list_before('particles', 'water', self.particle_list)
         self.physics_engine = arcade.PhysicsEnginePlatformer(
-            self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["walls"]
+            self.player_sprite, gravity_constant=GRAVITY, walls=[self.scene["walls"], self.scene["invis_walls"]]
         )
         spawn_point = list(filter(lambda x: x.name == 'player_spawn', self.level_tile_map.get_tilemap_layer('info').tiled_objects))[0]
         self.player_sprite.center_x, self.player_sprite.center_y = object_coords_to_game_coords(spawn_point.coordinates, self.level_tile_map)
