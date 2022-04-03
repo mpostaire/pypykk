@@ -215,7 +215,7 @@ class Level(arcade.View):
                             self.camera.position[1] + (SCREEN_HEIGHT / 2) + 32,
                             arcade.color.BLACK,
                             24)
-            arcade.draw_text(f"Global warming is no more :D",
+            arcade.draw_text(f"Global warming ended :D",
                             self.camera.position[0] + (SCREEN_WIDTH / 2) - 64,
                             self.camera.position[1] + (SCREEN_HEIGHT / 2) + 8,
                             arcade.color.BLACK,
