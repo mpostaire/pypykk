@@ -1,6 +1,8 @@
 import arcade
 from src.constants import *
 import sys
+from src.utils import play_sound
+
 class Player(arcade.Sprite):
 
     def __init__(self, game, *args, **kwargs):
@@ -23,7 +25,7 @@ class Player(arcade.Sprite):
         self.blink_ammount = 8
         self.blink = self.blink_ammount
 
-        self.hp = 4
+        self.hp = 6
 
     def hit(self, damage):
         if self.blink < self.blink_ammount:
@@ -37,6 +39,9 @@ class Player(arcade.Sprite):
 
         if self.hp <= 0:
             self.game.game_over = True
+            play_sound("game_over")
+        else:
+            play_sound("oof")
 
         return True
 

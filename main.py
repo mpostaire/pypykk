@@ -1,11 +1,11 @@
 import arcade
-from src.game import MyGame
+from src.menu import Menu
 from src.constants import *
 
 def main():
     """ Main function """
-    window = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    window.setup()
+    window = arcade.Window(title=SCREEN_TITLE, height=SCREEN_HEIGHT, width=SCREEN_WIDTH)
+    window.show_view(Menu())
     arcade.run()
 
 

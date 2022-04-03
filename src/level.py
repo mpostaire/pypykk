@@ -1,3 +1,4 @@
+from os import listdir
 import arcade
 from src.actors.player import Player
 from src.actors.evil_car import EvilCar
@@ -10,17 +11,20 @@ from src.constants import *
 from arcade import gui
 from src.particles.particle import flower_explosion
 
-class MyGame(arcade.Window):
+from src.utils import play_sound, stop_sounds
+
+class Level(arcade.View):
     """
     Main application class.
     """
 
-    def __init__(self, width, height, title):
+    def __init__(self, id):
         """
         Initializer
         """
         # Call the parent class initializer
-        super().__init__(width, height, title)
+        super().__init__()
+        self.id = id % len(listdir("assets/levels"))
 
         # A Camera that can be used for scrolling the screen
         self.camera = None
@@ -65,6 +69,13 @@ class MyGame(arcade.Window):
 
         # Set the background color
         arcade.set_background_color(arcade.color.SKY_BLUE)
+    
+    def on_show_view(self):
+        """ Called once when view is activated. """
+        self.setup()
+
+    def on_hide_view(self):
+        stop_sounds()
 
     def setup(self):
         """ Set up the game and initialize the variables. """
@@ -82,11 +93,11 @@ class MyGame(arcade.Window):
                 "hitbox_algorithm": "Simple"
             }
         }
-        self.level_tile_map = arcade.tilemap.load_tilemap("assets/levels/level1.json", TILE_SCALING, layer_options=options)
+        self.level_tile_map = arcade.tilemap.load_tilemap(f"assets/levels/level{self.id}.json", TILE_SCALING, layer_options=options)
         self.scene = arcade.Scene.from_tilemap(self.level_tile_map)
 
         # Set up the Camera
-        self.camera = arcade.Camera(self.width, self.height)
+        self.camera = arcade.Camera(self.window.width, self.window.height)
 
         # Sprite lists
         self.player_list = arcade.SpriteList()
@@ -98,8 +109,6 @@ class MyGame(arcade.Window):
         # Set up the player
         self.player_sprite = Player(self, center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2)
         self.player_list.append(self.player_sprite)
-        self.gun_sprite = Gun("assets/gun.png", center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y)
-        self.gun_list.append(self.gun_sprite)
 
         enemy_spawn_list = list(filter(lambda x: 'enemy' in x.name and 'spawn' in x.name, self.level_tile_map.get_tilemap_layer('info').tiled_objects))
         for point in enemy_spawn_list:
@@ -119,6 +128,11 @@ class MyGame(arcade.Window):
         )
         spawn_point = list(filter(lambda x: x.name == 'player_spawn', self.level_tile_map.get_tilemap_layer('info').tiled_objects))[0]
         self.player_sprite.center_x, self.player_sprite.center_y = object_coords_to_game_coords(spawn_point.coordinates, self.level_tile_map)
+
+        self.gun_sprite = Gun("assets/gun.png", center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y)
+        self.gun_list.append(self.gun_sprite)
+
+        play_sound("music", repeat=True)
 
         #Spawn enemies
 
@@ -164,7 +178,7 @@ class MyGame(arcade.Window):
                             self.camera.position[1] + (SCREEN_HEIGHT / 2) + 32,
                             arcade.color.BLACK,
                             24)
-            arcade.draw_text(f"All hope is lost forever :'(",
+            arcade.draw_text(f"All hope is forever lost :'(",
                             self.camera.position[0] + (SCREEN_WIDTH / 2) - 64,
                             self.camera.position[1] + (SCREEN_HEIGHT / 2) + 8,
                             arcade.color.BLACK,
@@ -257,6 +271,7 @@ class MyGame(arcade.Window):
         bullet_y = self.gun_sprite.center_y + self.gun_sprite.height / 4
         self.bullet_list.append(Bullet(direction, self.camera, self.player_sprite,
                                         center_x=bullet_x, center_y=bullet_y))
+        play_sound("pew")
 
 
     def on_update(self, delta_time):
@@ -313,7 +328,7 @@ class MyGame(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
-        if key == arcade.key.Z:
+        if key == arcade.key.Z or key == arcade.key.SPACE:
             self.up_pressed = True
         elif key == arcade.key.Q:
             self.left_pressed = True
@@ -328,10 +343,14 @@ class MyGame(arcade.Window):
         elif key == arcade.key.RIGHT:
             self.shoot_right_pressed = True
 
+        elif key == arcade.key.N:
+            # skip to next level (this is a cheat used for debugging purposes)
+            self.window.show_view(Level(self.id + 1))
+
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
-        if key == arcade.key.Z:
+        if key == arcade.key.Z or key == arcade.key.SPACE:
             self.up_pressed = False
         elif key == arcade.key.S:
             self.down_pressed = False

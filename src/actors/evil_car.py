@@ -1,8 +1,9 @@
 import arcade
-from random import random
+import random
 from src.constants import *
 from src.particles import particle
 from src.particles.flower import FlowerParticle
+from src.utils import play_sound
 
 class EvilCar(arcade.Sprite):
 
@@ -20,7 +21,7 @@ class EvilCar(arcade.Sprite):
         self.texture = self.car_textures[self.facing_direction][self.cur_texture]
         self.texture_time = 0
         self.state = 'spawning'
-        self.speed = 300 + random() * 150
+        self.speed = 300 + random.random() * 150
         self.dir = 1
         self.gravity = 10
         self.scale = TILE_SCALING * 0.25
@@ -30,6 +31,9 @@ class EvilCar(arcade.Sprite):
         self.blink_time = 0
         self.blink_ammount = 4
         self.blink = self.blink_ammount
+
+        self.sound_time = 0
+        self.sound_max = random.uniform(1, 3)
 
         self.hp = 5
         self.damage = 1
@@ -80,6 +84,14 @@ class EvilCar(arcade.Sprite):
             self.alpha = 255 if self.alpha == 0 else 0
         elif self.blink >= self.blink_ammount:
             self.alpha = 255
+
+        # sound
+        self.sound_time += delta_time
+        if self.sound_time >= self.sound_max:
+            self.sound_time = 0
+            self.soud_max = random.uniform(1, 3)
+            if self.center_x > self.game.camera.position[0] and self.center_x < self.game.camera.position[0] + SCREEN_WIDTH and self.center_y > self.game.camera.position[1] and self.center_y < self.game.camera.position[1] + SCREEN_HEIGHT:
+                play_sound("vroom")
 
     def hit(self, damage):
         if self.blink < self.blink_ammount:

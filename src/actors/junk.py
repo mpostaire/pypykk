@@ -1,8 +1,9 @@
-from random import choice, random
+from random import choice, random, uniform
 import arcade
 from src.constants import *
 from src.particles import particle
 from src.particles.flower import FlowerParticle
+from src.utils import play_sound
 
 class Junk(arcade.Sprite):
 
@@ -34,6 +35,9 @@ class Junk(arcade.Sprite):
         self.blink = self.blink_ammount
         self.base_y = self.center_y
 
+        self.sound_time = 0
+        self.sound_max = uniform(1, 3)
+
         self.hp = 5
         self.damage = 1
 
@@ -49,6 +53,14 @@ class Junk(arcade.Sprite):
             self.alpha = 255 if self.alpha == 0 else 0
         elif self.blink >= self.blink_ammount:
             self.alpha = 255
+
+        # sound
+        self.sound_time += delta_time
+        if self.sound_time >= self.sound_max:
+            self.sound_time = 0
+            self.soud_max = uniform(1, 3)
+            if self.center_x > self.game.camera.position[0] and self.center_x < self.game.camera.position[0] + SCREEN_WIDTH and self.center_y > self.game.camera.position[1] and self.center_y < self.game.camera.position[1] + SCREEN_HEIGHT:
+                play_sound("ploof")
 
     def hit(self, damage):
         if self.blink < self.blink_ammount:
