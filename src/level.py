@@ -44,6 +44,8 @@ class Level(arcade.View):
         # Variables that will hold bullet lists
         self.bullet_list = None
 
+        self.enemy_bullet_list = None
+
         self.particle_list = None
 
         # Track the current state of what key is pressed
@@ -66,6 +68,7 @@ class Level(arcade.View):
         self.air_jump_ready = False
 
         self.game_over = False
+        self.win = False
 
         # Set the background color
         arcade.set_background_color(arcade.color.SKY_BLUE)
@@ -107,6 +110,7 @@ class Level(arcade.View):
         self.gun_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
+        self.enemy_bullet_list = arcade.SpriteList()
         self.particle_list = arcade.SpriteList()
 
         # Set up the player
@@ -126,6 +130,7 @@ class Level(arcade.View):
         self.scene.add_sprite_list_before('enemies', 'water',self.enemy_list)
         self.scene.add_sprite_list_before('player', 'water',self.player_list)
         self.scene.add_sprite_list_before('bullets', 'water',self.bullet_list)
+        self.scene.add_sprite_list_before('enemy_bullets', 'water',self.enemy_bullet_list)
         self.scene.add_sprite_list_before('gun', 'water',self.gun_list)
         self.scene.add_sprite_list_before('particles', 'water', self.particle_list)
         self.physics_engine = arcade.PhysicsEnginePlatformer(
@@ -150,7 +155,7 @@ class Level(arcade.View):
         # Activate our Camera
         self.camera.use()
         for name, list in self.scene.name_mapping.items():
-            if name not in ['water', 'enemies', 'player', 'bullets', 'gun']:
+            if name not in ['water', 'enemies', 'player', 'bullets', 'gun', 'enemy_bullets']:
                 self.scene[name].draw(pixelated=True)
 
 
@@ -160,6 +165,7 @@ class Level(arcade.View):
         self.gun_list.draw(pixelated=True)
         self.enemy_list.draw(pixelated=True)
         self.particle_list.draw(pixelated=True)
+        self.enemy_bullet_list.draw(pixelated=True)
         self.bullet_list.draw(pixelated=True)
 
         self.scene['water'].draw(pixelated=True)
@@ -195,6 +201,21 @@ class Level(arcade.View):
                             arcade.color.BLACK,
                             24)
             arcade.draw_text(f"All hope is forever lost :'(",
+                            self.camera.position[0] + (SCREEN_WIDTH / 2) - 64,
+                            self.camera.position[1] + (SCREEN_HEIGHT / 2) + 8,
+                            arcade.color.BLACK,
+                            18)
+        elif self.win:
+            arcade.draw_rectangle_filled(
+                self.camera.position[0] + (SCREEN_WIDTH / 2) + 64,
+                self.camera.position[1] + (SCREEN_HEIGHT / 2) + 32,
+                300, 64, (255, 255, 255, 200))
+            arcade.draw_text(f"YOU WON!",
+                            self.camera.position[0] + (SCREEN_WIDTH / 2) - 32,
+                            self.camera.position[1] + (SCREEN_HEIGHT / 2) + 32,
+                            arcade.color.BLACK,
+                            24)
+            arcade.draw_text(f"Global warming is no more :D",
                             self.camera.position[0] + (SCREEN_WIDTH / 2) - 64,
                             self.camera.position[1] + (SCREEN_HEIGHT / 2) + 8,
                             arcade.color.BLACK,
@@ -291,7 +312,7 @@ class Level(arcade.View):
 
     def on_update(self, delta_time):
         """ Movement and game logic """
-        if self.game_over:
+        if self.game_over or self.win:
             return
 
         self.physics_engine.update()
@@ -303,6 +324,7 @@ class Level(arcade.View):
         self.player_list.on_update(delta_time)
         self.gun_list.on_update(self.player_sprite)
         self.bullet_list.on_update(delta_time)
+        self.enemy_bullet_list.on_update(delta_time)
         self.enemy_list.on_update(delta_time)
         self.particle_list.on_update(delta_time)
         
@@ -324,6 +346,11 @@ class Level(arcade.View):
         enemies_collided = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
         if enemies_collided:
             self.player_sprite.hit(enemies_collided[0].damage)
+        
+        bullets_collided = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_bullet_list)
+        if bullets_collided:
+            if self.player_sprite.hit(bullets_collided[0].damage):
+                self.enemy_bullet_list.remove(bullets_collided[0])
 
         # update player facing direction in function of shoot direction and movement direction
         if self.shoot_left_pressed:

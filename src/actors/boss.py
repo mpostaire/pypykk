@@ -3,6 +3,7 @@ import random
 from src.constants import *
 from src.particles import particle
 from src.particles.flower import FlowerParticle
+from src.actors.boss_bullet import BossBullet
 from math import sin
 
 class Boss(arcade.Sprite):
@@ -37,7 +38,10 @@ class Boss(arcade.Sprite):
         self.sound_time = 0
         self.sound_max = random.uniform(1, 3)
 
-        self.hp = 5
+        self.shoot_time = 0
+        self.shoot_max = random.uniform(0.5, 1)
+
+        self.hp = 5 + self.game.score
         self.damage = 1
 
     def update_animation(self, delta_time):
@@ -82,6 +86,22 @@ class Boss(arcade.Sprite):
         elif self.blink >= self.blink_ammount:
             self.alpha = 255
 
+        # shoot
+        self.shoot_time += delta_time
+        if self.shoot_time >= self.shoot_max:
+            self.shoot_time = 0
+            self.shoot_max = random.uniform(1, 3)
+            if random.random() < 0.5:
+                self.game.enemy_bullet_list.append(BossBullet(Direction.UP, self.game, center_x=self.center_x, center_y=self.center_y))
+                self.game.enemy_bullet_list.append(BossBullet(Direction.DOWN, self.game, center_x=self.center_x, center_y=self.center_y))
+                self.game.enemy_bullet_list.append(BossBullet(Direction.LEFT, self.game, center_x=self.center_x, center_y=self.center_y))
+                self.game.enemy_bullet_list.append(BossBullet(Direction.RIGHT, self.game, center_x=self.center_x, center_y=self.center_y))
+            else:
+                self.game.enemy_bullet_list.append(BossBullet(Direction.UP_LEFT, self.game, center_x=self.center_x, center_y=self.center_y))
+                self.game.enemy_bullet_list.append(BossBullet(Direction.UP_RIGHT, self.game, center_x=self.center_x, center_y=self.center_y))
+                self.game.enemy_bullet_list.append(BossBullet(Direction.DOWN_LEFT, self.game, center_x=self.center_x, center_y=self.center_y))
+                self.game.enemy_bullet_list.append(BossBullet(Direction.DOWN_RIGHT, self.game, center_x=self.center_x, center_y=self.center_y))
+
         # sound
         self.sound_time += delta_time
         if self.sound_time >= self.sound_max:
@@ -89,6 +109,7 @@ class Boss(arcade.Sprite):
             self.soud_max = random.uniform(1, 3)
             if self.center_x > self.game.camera.position[0] and self.center_x < self.game.camera.position[0] + SCREEN_WIDTH and self.center_y > self.game.camera.position[1] and self.center_y < self.game.camera.position[1] + SCREEN_HEIGHT:
                 self.game.ass.play_sound("vroom")
+
         self.time_alive += delta_time
 
     def hit(self, damage):
@@ -103,7 +124,8 @@ class Boss(arcade.Sprite):
         if self.hp <= 0:
             self.game.enemy_list.remove(self)
             particle.flower_explosion(self.game, self.center_x, self.center_y, n_flowers=100)
-            self.game.score -= 2
+            self.game.score = 0
+            self.game.win = True
         return True
 
     def think(self, dt):
@@ -123,7 +145,3 @@ class Boss(arcade.Sprite):
                     self.facing_direction = Direction.LEFT
                 else:
                     self.facing_direction = Direction.RIGHT
-
-            
-
-
