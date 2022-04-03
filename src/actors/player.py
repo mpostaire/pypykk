@@ -1,7 +1,6 @@
 import arcade
 from src.constants import *
 import sys
-from src.utils import play_sound
 
 class Player(arcade.Sprite):
 
@@ -12,8 +11,8 @@ class Player(arcade.Sprite):
         self.facing_direction = Direction.RIGHT
 
         self.player_textures = {
-            Direction.RIGHT: arcade.load_spritesheet("assets/GirlyGirl_walkcycle_right.png", 240, 240, 5, 9),
-            Direction.LEFT: arcade.load_spritesheet("assets/GirlyGirl_walkcycle_left.png", 240, 240, 5, 9)
+            Direction.RIGHT: self.game.ass.textures["gunberg_right"],
+            Direction.LEFT: self.game.ass.textures["gunberg_left"]
         }
 
         self.cur_texture = 0
@@ -39,9 +38,9 @@ class Player(arcade.Sprite):
 
         if self.hp <= 0:
             self.game.game_over = True
-            play_sound("game_over")
+            self.game.ass.play_sound("game_over")
         else:
-            play_sound("oof")
+            self.game.ass.play_sound("oof")
 
         return True
 

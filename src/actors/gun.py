@@ -3,13 +3,14 @@ from src.constants import *
 
 class Gun(arcade.Sprite):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, game, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.scale = SPRITE_SCALING * 4
+        self.game = game
 
         self.gun_textures = {
-            Direction.RIGHT: arcade.load_texture("assets/gun.png"),
-            Direction.LEFT: arcade.load_texture("assets/gun.png", flipped_horizontally=True)
+            Direction.RIGHT: self.game.ass.textures["gun_right"],
+            Direction.LEFT: self.game.ass.textures["gun_left"]
         }
 
     def on_update(self, player):

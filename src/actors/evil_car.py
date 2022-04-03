@@ -3,7 +3,6 @@ import random
 from src.constants import *
 from src.particles import particle
 from src.particles.flower import FlowerParticle
-from src.utils import play_sound
 
 class EvilCar(arcade.Sprite):
 
@@ -11,10 +10,11 @@ class EvilCar(arcade.Sprite):
         super().__init__(*args, **kwargs)
         self.scale = SPRITE_SCALING
         self.facing_direction = Direction.RIGHT
+        self.game = game
 
         self.car_textures = {
-            Direction.RIGHT: arcade.load_spritesheet("assets/evil_car_0_right.png", 576//2, 118, 2, 2),
-            Direction.LEFT: arcade.load_spritesheet("assets/evil_car_0_left.png", 576//2, 118, 2, 2),
+            Direction.RIGHT: self.game.ass.textures["evil_car_right"],
+            Direction.LEFT: self.game.ass.textures["evil_car_left"],
         }
         self.game = game
         self.cur_texture = 0
@@ -91,7 +91,7 @@ class EvilCar(arcade.Sprite):
             self.sound_time = 0
             self.soud_max = random.uniform(1, 3)
             if self.center_x > self.game.camera.position[0] and self.center_x < self.game.camera.position[0] + SCREEN_WIDTH and self.center_y > self.game.camera.position[1] and self.center_y < self.game.camera.position[1] + SCREEN_HEIGHT:
-                play_sound("vroom")
+                self.game.ass.play_sound("vroom")
 
     def hit(self, damage):
         if self.blink < self.blink_ammount:

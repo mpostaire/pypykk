@@ -3,7 +3,6 @@ import arcade
 from src.constants import *
 from src.particles import particle
 from src.particles.flower import FlowerParticle
-from src.utils import play_sound
 
 class Junk(arcade.Sprite):
 
@@ -11,16 +10,9 @@ class Junk(arcade.Sprite):
         super().__init__(*args, **kwargs)
         self.scale = SPRITE_SCALING
         self.facing_direction = Direction.RIGHT
-        dims = [
-            (16, 45),
-            (39, 55),
-            (36, 44),
-            (51, 48)
-        ]
-        self.all_textures = [
-            arcade.load_texture(f'assets/junk_0{i}.png', width=dims[i][0], height=dims[i][1])
-            for i in range(3)
-        ]
+        self.game = game
+
+        self.all_textures = self.game.ass.textures["junk"]
         self.game = game
         self.cur_texture = 0
         self.texture = choice(self.all_textures)
@@ -60,7 +52,7 @@ class Junk(arcade.Sprite):
             self.sound_time = 0
             self.soud_max = uniform(1, 3)
             if self.center_x > self.game.camera.position[0] and self.center_x < self.game.camera.position[0] + SCREEN_WIDTH and self.center_y > self.game.camera.position[1] and self.center_y < self.game.camera.position[1] + SCREEN_HEIGHT:
-                play_sound("ploof")
+                self.game.ass.play_sound("ploof")
 
     def hit(self, damage):
         if self.blink < self.blink_ammount:

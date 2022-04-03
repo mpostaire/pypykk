@@ -10,7 +10,7 @@ class SmokeParticle(arcade.Sprite):
 
         self.game = game
 
-        flower_textures = arcade.load_spritesheet("assets/smoke.png", 16, 16, 2, 3)
+        flower_textures = self.game.ass.textures["smoke"]
         self.texture = random.choice(flower_textures)
         self.elapsed = 0
 

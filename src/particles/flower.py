@@ -10,7 +10,7 @@ class FlowerParticle(arcade.Sprite):
 
         self.game = game
 
-        flower_textures = arcade.load_spritesheet("assets/flowers.png", 32, 32, 15, 45)
+        flower_textures = self.game.ass.textures["flower"]
         self.texture = random.choice(flower_textures)
         self.elapsed = 0
 

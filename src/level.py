@@ -11,26 +11,25 @@ from src.constants import *
 from arcade import gui
 from src.particles.particle import flower_explosion
 
-from src.utils import play_sound, stop_sounds
-
 class Level(arcade.View):
     """
     Main application class.
     """
 
-    def __init__(self, id):
+    def __init__(self, id, ass, score):
         """
         Initializer
         """
         # Call the parent class initializer
         super().__init__()
         self.id = id % len(listdir("assets/levels"))
+        self.ass = ass
 
         # A Camera that can be used for scrolling the screen
         self.camera = None
 
         # TODO edit this following the total number of enemies in all the levels
-        self.score = 16
+        self.score = score
 
         # Variables that will hold sprite lists
         self.player_list = None
@@ -75,7 +74,10 @@ class Level(arcade.View):
         self.setup()
 
     def on_hide_view(self):
-        stop_sounds()
+        self.ass.stop_sounds()
+
+    def next_level(self):
+        self.window.show_view(Level(self.id + 1, self.ass, self.score))
 
     def setup(self):
         """ Set up the game and initialize the variables. """
@@ -129,10 +131,10 @@ class Level(arcade.View):
         spawn_point = list(filter(lambda x: x.name == 'player_spawn', self.level_tile_map.get_tilemap_layer('info').tiled_objects))[0]
         self.player_sprite.center_x, self.player_sprite.center_y = object_coords_to_game_coords(spawn_point.coordinates, self.level_tile_map)
 
-        self.gun_sprite = Gun("assets/gun.png", center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y)
+        self.gun_sprite = Gun(self, center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y)
         self.gun_list.append(self.gun_sprite)
 
-        play_sound("music", repeat=True)
+        self.ass.play_sound("music", repeat=True)
 
         #Spawn enemies
 
@@ -269,9 +271,8 @@ class Level(arcade.View):
             bullet_x = self.gun_sprite.center_x + self.gun_sprite.width / 2
 
         bullet_y = self.gun_sprite.center_y + self.gun_sprite.height / 4
-        self.bullet_list.append(Bullet(direction, self.camera, self.player_sprite,
-                                        center_x=bullet_x, center_y=bullet_y))
-        play_sound("pew")
+        self.bullet_list.append(Bullet(direction, self, center_x=bullet_x, center_y=bullet_y))
+        self.ass.play_sound("pew")
 
 
     def on_update(self, delta_time):
@@ -345,7 +346,7 @@ class Level(arcade.View):
 
         elif key == arcade.key.N:
             # skip to next level (this is a cheat used for debugging purposes)
-            self.window.show_view(Level(self.id + 1))
+            self.next_level()
 
 
     def on_key_release(self, key, modifiers):
