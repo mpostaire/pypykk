@@ -129,9 +129,9 @@ class Boss(arcade.Sprite):
         return True
 
     def think(self, dt):
-        wall_hit_list = arcade.check_for_collision_with_list(
+        wall_hit_list = arcade.check_for_collision_with_lists(
             self,
-            self.game.scene['walls']
+            [self.game.scene['walls'], self.game.scene['invis_walls']]
         )
         if self.state == 'spawning':
             if len(wall_hit_list) > 0:
