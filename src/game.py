@@ -79,7 +79,7 @@ class MyGame(arcade.Window):
                 "hitbox_algorithm": "Simple"
             }
         }
-        self.level_tile_map = arcade.tilemap.load_tilemap("assets/levels/level0.json", TILE_SCALING, layer_options=options)
+        self.level_tile_map = arcade.tilemap.load_tilemap("assets/levels/level1.json", TILE_SCALING, layer_options=options)
         self.scene = arcade.Scene.from_tilemap(self.level_tile_map)
 
         # Set up the Camera
