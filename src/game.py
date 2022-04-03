@@ -178,6 +178,10 @@ class MyGame(arcade.Window):
         # Calculate speed based on the keys pressed
         self.player_sprite.change_x = 0
         #self.player_sprite.change_y = 0
+        flower_coordinates = (
+            self.player_sprite.center_x + (self.player_sprite.width//2),
+            self.player_sprite.center_y - self.player_sprite.height//2
+        )
         if self.physics_engine.can_jump():
             self.air_jump_ready = False
             self.n_jumps = 0
@@ -194,7 +198,8 @@ class MyGame(arcade.Window):
             self.n_jumps += 1
 
         elif self.air_jump_ready and self.up_pressed:
-            flower_explosion(self, self.player_sprite.center_x//2, self.player_sprite.center_y//2 - self.player_sprite.height//2, n_flowers=2)
+
+            flower_explosion(self, flower_coordinates[0], flower_coordinates[1], n_flowers=3)
             self.player_sprite.change_y = PLAYER_JUMP_SPEED
             self.air_jump_ready = False
 

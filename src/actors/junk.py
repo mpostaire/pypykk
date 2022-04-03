@@ -28,7 +28,7 @@ class Junk(arcade.Sprite):
         self.y_offsets = [-self.boyancy, 0, self.boyancy, 0]
         self.y_offset_idx = 0
         self.boyancy_time = 0
-        self.boyancy_max_time = 1 * random()
+        self.boyancy_max_time = 1 + 0.25*random()
         self.blink_time = 0
         self.blink_ammount = 4
         self.blink = self.blink_ammount
