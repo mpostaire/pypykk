@@ -1,4 +1,5 @@
 import arcade
+from random import random
 from src.constants import *
 from src.particles import particle
 from src.particles.flower import FlowerParticle
@@ -19,7 +20,7 @@ class EvilCar(arcade.Sprite):
         self.texture = self.car_textures[self.facing_direction][self.cur_texture]
         self.texture_time = 0
         self.state = 'spawning'
-        self.speed = 300
+        self.speed = 300 + random() * 150
         self.dir = 1
         self.gravity = 75
         self.scale = TILE_SCALING * 0.25

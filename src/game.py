@@ -1,11 +1,14 @@
 import arcade
 from src.actors.player import Player
 from src.actors.evil_car import EvilCar
+from src.actors.junk import Junk
+
 from src.actors.gun import Gun
 from src.actors.bullet import Bullet
 from src.utils import object_coords_to_game_coords
 from src.constants import *
 from arcade import gui
+from src.particles.particle import flower_explosion
 
 class MyGame(arcade.Window):
     """
@@ -95,8 +98,11 @@ class MyGame(arcade.Window):
 
         enemy_spawn_list = list(filter(lambda x: 'enemy' in x.name and 'spawn' in x.name, self.level_tile_map.get_tilemap_layer('info').tiled_objects))
         for point in enemy_spawn_list:
-            enemy = EvilCar(self)
-            enemy.center_x, enemy.center_y = object_coords_to_game_coords(point.coordinates, self.level_tile_map)
+            cx, cy = object_coords_to_game_coords(point.coordinates, self.level_tile_map)
+            if 'car' in point.name:
+                enemy = EvilCar(self, center_x=cx, center_y=cy)
+            elif 'junk' in point.name:
+                enemy = Junk(self, center_x=cx, center_y=cy)
             self.enemy_list.append(enemy)
         self.scene.add_sprite_list_before('enemies', 'water',self.enemy_list)
         self.scene.add_sprite_list_before('player', 'water',self.player_list)
@@ -161,19 +167,28 @@ class MyGame(arcade.Window):
         # Calculate speed based on the keys pressed
         self.player_sprite.change_x = 0
         #self.player_sprite.change_y = 0
+        flower_coordinates = (
+            self.player_sprite.center_x + (self.player_sprite.width//2),
+            self.player_sprite.center_y - self.player_sprite.height//2
+        )
         if self.physics_engine.can_jump():
             self.air_jump_ready = False
             self.n_jumps = 0
             self.jump_duration = PLAYER_JUMP_DURATION
             if self.up_pressed and not self.down_pressed:
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
+
         elif self.jump_duration > 0 and self.up_pressed:
             self.jump_duration -= dt
             self.player_sprite.change_y = PLAYER_JUMP_SPEED
+
         elif not self.air_jump_ready and not self.up_pressed and self.n_jumps < self.max_air_jumps:
             self.air_jump_ready = True
             self.n_jumps += 1
+
         elif self.air_jump_ready and self.up_pressed:
+
+            flower_explosion(self, flower_coordinates[0], flower_coordinates[1], n_flowers=3)
             self.player_sprite.change_y = PLAYER_JUMP_SPEED
             self.air_jump_ready = False
 
@@ -232,6 +247,12 @@ class MyGame(arcade.Window):
         self.player_list.on_update(delta_time)
         self.gun_list.on_update(self.player_sprite)
         self.bullet_list.on_update(delta_time)
+        self.enemy_list.on_update(delta_time)
+        self.particle_list.on_update(delta_time)
+        
+        water_collided = arcade.check_for_collision_with_list(self.player_sprite, self.scene['water'])
+        if len(water_collided) > 0:
+            self.player_sprite.die()
 
         # entities collision logic
         # collision on player's bullet
