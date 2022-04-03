@@ -22,7 +22,7 @@ class EvilCar(arcade.Sprite):
         self.state = 'spawning'
         self.speed = 300 + random() * 150
         self.dir = 1
-        self.gravity = 75
+        self.gravity = 10
         self.scale = TILE_SCALING * 0.25
 
         self.smoke_time = 0
