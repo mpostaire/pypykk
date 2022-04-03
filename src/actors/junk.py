@@ -50,11 +50,11 @@ class Junk(arcade.Sprite):
         elif self.blink >= self.blink_ammount:
             self.alpha = 255
 
-    def hit(self, bullet):
+    def hit(self, damage):
         if self.blink < self.blink_ammount:
             return False
 
-        self.hp -= bullet.damage
+        self.hp -= damage
 
         self.blink = 0
         self.blink_time = 0

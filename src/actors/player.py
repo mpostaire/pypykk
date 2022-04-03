@@ -24,24 +24,19 @@ class Player(arcade.Sprite):
         self.blink = self.blink_ammount
 
         self.hp = 4
-    def die(self):
-        self.hp -= 0xFFFFFFFF
-        print("you ded.")
-        print("game over.")
-        sys.exit(0)
-    def hit(self, enemy):
+
+    def hit(self, damage):
         if self.blink < self.blink_ammount:
             return False
 
-        self.hp -= enemy.damage
-        self.game.health_label = f"Gunberg's health: {self.hp}"
+        self.hp = max(0, self.hp - damage)
+        self.game.health_label = f"Gunberg's health: {int(self.hp)}"
 
         self.blink = 0
         self.blink_time = 0
 
         if self.hp <= 0:
-            print("GAME OVER")
-            exit()
+            self.game.game_over = True
 
         return True
 
