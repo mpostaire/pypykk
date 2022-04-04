@@ -60,7 +60,7 @@ class AssetManager():
                 arcade.load_sound("assets/oof_00.wav"),
                 arcade.load_sound("assets/oof_01.wav")
             ],
-            "explosion": arcade.load_sound("assets/boom_00.mp3"),
+            "explosion": arcade.load_sound("assets/boom_00.wav"),
             "music": arcade.load_sound("assets/Gilles Stella - Libre de droit.m4a")
         }
 

@@ -1,85 +1,148 @@
 import arcade
 from src.constants import *
-import sys
+from src.particles.particle import flower_explosion
+from src.actors.bullet import Bullet
+from src.actors.animated_sprite import AnimatedSprite
 
-class Player(arcade.Sprite):
+class Player(AnimatedSprite):
 
     def __init__(self, game, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        idle_textures = {
+            Direction.RIGHT: [game.ass.textures["gunberg_right"][0], game.ass.textures["gunberg_right"][1]],
+            Direction.LEFT: [game.ass.textures["gunberg_left"][0], game.ass.textures["gunberg_left"][1]]
+        }
+        move_textures = {
+            Direction.RIGHT: game.ass.textures["gunberg_right"],
+            Direction.LEFT: game.ass.textures["gunberg_left"]
+        }
+
+        super().__init__(idle_textures, move_textures, *args, **kwargs)
+
         self.game = game
         self.scale = SPRITE_SCALING
         self.facing_direction = Direction.RIGHT
 
-        self.player_textures = {
-            Direction.RIGHT: self.game.ass.textures["gunberg_right"],
-            Direction.LEFT: self.game.ass.textures["gunberg_left"]
-        }
-
-        self.cur_texture = 0
-        self.texture = self.player_textures[self.facing_direction][self.cur_texture]
-        self.texture_time = 0
-        self.idle_status = 0
-
-        self.blink_time = 0
         self.blink_ammount = 8
-        self.blink = self.blink_ammount
+
+        self.bullet_time = 0
+
+        self.jump_duration = PLAYER_JUMP_DURATION
+
+        self.max_air_jumps = 1
+        self.n_jumps = 0
+        self.air_jump_ready = False
 
         self.hp = 6
 
     def hit(self, damage):
-        if self.blink < self.blink_ammount:
-            return False
-
-        self.hp = max(0, self.hp - damage)
-        self.game.health_label = f"Gunberg's health: {int(self.hp)}"
-
-        self.blink = 0
-        self.blink_time = 0
-
-        if self.hp <= 0:
+        ret = super().hit(damage)
+        if ret and self.hp <= 0:
             self.game.game_over = True
             self.game.ass.play_sound("game_over")
-        else:
+        elif ret:
             self.game.ass.play_sound("oof")
+        return ret
 
-        return True
+    def update_player_speed(self, dt):
+        # Calculate speed based on the keys pressed
+        self.change_x = 0
+        #self.change_y = 0
+        flower_coordinates = (
+            self.center_x + (self.width // 2),
+            self.center_y - self.height // 2
+        )
+        if self.game.physics_engine.can_jump():
+            self.air_jump_ready = False
+            self.n_jumps = 0
+            self.jump_duration = PLAYER_JUMP_DURATION
+            if self.game.up_pressed and not self.game.down_pressed:
+                self.change_y = PLAYER_JUMP_SPEED
+
+        elif self.jump_duration > 0 and self.game.up_pressed:
+            self.jump_duration -= dt
+            self.change_y = PLAYER_JUMP_SPEED
+
+        elif not self.air_jump_ready and not self.game.up_pressed and self.n_jumps < self.max_air_jumps:
+            self.air_jump_ready = True
+            self.n_jumps += 1
+
+        elif self.air_jump_ready and self.game.up_pressed:
+            self.jump_duration = PLAYER_JUMP_DURATION
+            flower_explosion(self.game, flower_coordinates[0], flower_coordinates[1], n_flowers=3, muted=False)
+            self.change_y = PLAYER_JUMP_SPEED
+            self.air_jump_ready = False
+
+        if self.game.left_pressed and not self.game.right_pressed:
+            self.change_x = -MOVEMENT_SPEED * dt
+        elif self.game.right_pressed and not self.game.left_pressed:
+            self.change_x = MOVEMENT_SPEED * dt
+
+    def shoot(self, delta_time):
+        self.bullet_time += delta_time
+        if self.bullet_time < BULLET_RATE:
+            return
+
+        direction = None
+        if self.game.shoot_up_pressed:
+            if self.game.shoot_left_pressed:
+                direction = Direction.UP_LEFT
+            elif self.game.shoot_right_pressed:
+                direction = Direction.UP_RIGHT
+            else:
+                direction = Direction.UP
+        elif self.game.shoot_down_pressed:
+            if self.game.shoot_left_pressed:
+                direction = Direction.DOWN_LEFT
+            elif self.game.shoot_right_pressed:
+                direction = Direction.DOWN_RIGHT
+            else:
+                direction = Direction.DOWN
+        elif self.game.shoot_left_pressed:
+            direction = Direction.LEFT
+        elif self.game.shoot_right_pressed:
+            direction = Direction.RIGHT
+        else:
+            return
+
+        self.bullet_time = 0
+
+        bullet_x = 0
+        if self.facing_direction == Direction.LEFT:
+            bullet_x = self.game.gun_sprite.center_x - self.game.gun_sprite.width / 2
+        else:
+            bullet_x = self.game.gun_sprite.center_x + self.game.gun_sprite.width / 2
+
+        bullet_y = self.game.gun_sprite.center_y + self.game.gun_sprite.height / 4
+        self.game.bullet_list.append(Bullet(self.game,
+                                            direction,
+                                            self.game.ass.textures["flower"][4],
+                                            scale=SPRITE_SCALING * 3,
+                                            center_x=bullet_x,
+                                            center_y=bullet_y))
+        self.game.ass.play_sound("pew")
 
     def update_animation(self, delta_time):
-        self.texture_time += delta_time
-
-        if (self.change_x != 0 or self.change_y != 0) and self.texture_time > 0.05:
-            self.idle_status = 0
-            self.texture_time = 0
-            self.cur_texture = (self.cur_texture + 1) % len(self.player_textures[self.facing_direction])
-            self.texture = self.player_textures[self.facing_direction][self.cur_texture]
-        elif (self.change_x == 0 and self.change_y == 0):
-            if self.idle_status == 0:
-                self.texture_time = 0
-                self.idle_status = 1
-                self.cur_texture = 0
-            elif self.idle_status == 1 and self.texture_time > 0.3:
-                self.texture_time = 0
-                self.idle_status = 2
-                self.cur_texture = 1
-            elif self.idle_status == 2 and self.texture_time > 0.3:
-                self.texture_time = 0
-                self.idle_status = 1
-                self.cur_texture = 0
-
-            self.texture = self.player_textures[self.facing_direction][self.cur_texture]
+        # update facing direction in function of shoot direction and movement direction
+        if self.game.shoot_left_pressed:
+            self.facing_direction = Direction.LEFT
+        elif self.game.shoot_right_pressed:
+            self.facing_direction = Direction.RIGHT
+        elif self.game.left_pressed:
+            self.facing_direction = Direction.LEFT
+        elif self.game.right_pressed:
+            self.facing_direction = Direction.RIGHT
         
+        super().update_animation(delta_time)
+
     def on_update(self, delta_time):
         """ Move the player """
+        self.update_player_speed(delta_time)
+
         self.center_x += self.change_x * delta_time
         self.center_y += self.change_y * delta_time
 
+        self.shoot(delta_time)
+
         self.update_animation(delta_time)
 
-        # blink on hit
-        self.blink_time += delta_time
-        if self.blink < self.blink_ammount and self.blink_time >= 0.06:
-            self.blink += 1
-            self.blink_time = 0
-            self.alpha = 255 if self.alpha == 0 else 0
-        elif self.blink >= self.blink_ammount:
-            self.alpha = 255
+        self.blink_animation(delta_time)

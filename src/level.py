@@ -36,7 +36,9 @@ class Level(arcade.View):
         self.player_list = None
 
         # Set up the player info
-        self.player_sprite = None
+        self.player = None
+
+        self.boss = None
 
         self.gun_list = None
         self.gun_sprite = None
@@ -58,14 +60,6 @@ class Level(arcade.View):
         self.shoot_right_pressed = False
         self.shoot_up_pressed = False
         self.shoot_down_pressed = False
-        
-        self.jump_duration = PLAYER_JUMP_DURATION
-
-        self.bullet_time = 0
-        self.level_idx = 0
-        self.max_air_jumps = 1
-        self.n_jumps = 0
-        self.air_jump_ready = False
 
         self.game_over = False
         self.win = False
@@ -82,6 +76,9 @@ class Level(arcade.View):
 
     def next_level(self):
         self.window.show_view(Level(self.id + 1, self.ass, self.score))
+    
+    def restart_level(self):
+        self.window.show_view(Level(self.id, self.ass, STARTING_SCORE))
 
     def setup(self):
         """ Set up the game and initialize the variables. """
@@ -119,8 +116,8 @@ class Level(arcade.View):
         self.particle_list = arcade.SpriteList()
 
         # Set up the player
-        self.player_sprite = Player(self, center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2)
-        self.player_list.append(self.player_sprite)
+        self.player = Player(self, center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2)
+        self.player_list.append(self.player)
 
         enemy_spawn_list = list(filter(lambda x: 'enemy' in x.name and 'spawn' in x.name, self.level_tile_map.get_tilemap_layer('info').tiled_objects))
         for point in enemy_spawn_list:
@@ -131,6 +128,7 @@ class Level(arcade.View):
                 enemy = Junk(self, center_x=cx, center_y=cy)
             elif 'boss' in point.name:
                 enemy = Boss(self, center_x=cx, center_y=cy)
+                self.boss = enemy
             self.enemy_list.append(enemy)
         self.scene.add_sprite_list_before('enemies', 'water',self.enemy_list)
         self.scene.add_sprite_list_before('player', 'water',self.player_list)
@@ -139,12 +137,12 @@ class Level(arcade.View):
         self.scene.add_sprite_list_before('gun', 'water',self.gun_list)
         self.scene.add_sprite_list_before('particles', 'water', self.particle_list)
         self.physics_engine = arcade.PhysicsEnginePlatformer(
-            self.player_sprite, gravity_constant=GRAVITY, walls=[self.scene["walls"], self.scene["invis_walls"]]
+            self.player, gravity_constant=GRAVITY, walls=[self.scene["walls"], self.scene["invis_walls"]]
         )
         spawn_point = list(filter(lambda x: x.name == 'player_spawn', self.level_tile_map.get_tilemap_layer('info').tiled_objects))[0]
-        self.player_sprite.center_x, self.player_sprite.center_y = object_coords_to_game_coords(spawn_point.coordinates, self.level_tile_map)
+        self.player.center_x, self.player.center_y = object_coords_to_game_coords(spawn_point.coordinates, self.level_tile_map)
 
-        self.gun_sprite = Gun(self, center_x=self.player_sprite.center_x, center_y=self.player_sprite.center_y)
+        self.gun_sprite = Gun(self, center_x=self.player.center_x, center_y=self.player.center_y)
         self.gun_list.append(self.gun_sprite)
 
         self.ass.play_sound("music", repeat=True)
@@ -180,7 +178,7 @@ class Level(arcade.View):
                 self.camera.position[0] + 120,
                 self.camera.position[1] + SCREEN_HEIGHT - 25,
                 220, 32, (255, 255, 255, 200))
-        arcade.draw_text(f"Gunberg's health: {int(self.player_sprite.hp)}",
+        arcade.draw_text(f"Gunberg's health: {int(self.player.hp)}",
                         self.camera.position[0] + 16,
                         self.camera.position[1] + SCREEN_HEIGHT - 32,
                         arcade.color.BLACK,
@@ -228,8 +226,8 @@ class Level(arcade.View):
 
 
     def center_camera_to_player(self):
-        screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
-        screen_center_y = self.player_sprite.center_y - (
+        screen_center_x = self.player.center_x - (self.camera.viewport_width / 2)
+        screen_center_y = self.player.center_y - (
             self.camera.viewport_height / 2
         )
 
@@ -242,100 +240,26 @@ class Level(arcade.View):
 
         self.camera.move_to(player_centered)
 
-    def update_player_speed(self, dt):
-        # Calculate speed based on the keys pressed
-        self.player_sprite.change_x = 0
-        #self.player_sprite.change_y = 0
-        flower_coordinates = (
-            self.player_sprite.center_x + (self.player_sprite.width//2),
-            self.player_sprite.center_y - self.player_sprite.height//2
-        )
-        if self.physics_engine.can_jump():
-            self.air_jump_ready = False
-            self.n_jumps = 0
-            self.jump_duration = PLAYER_JUMP_DURATION
-            if self.up_pressed and not self.down_pressed:
-                self.player_sprite.change_y = PLAYER_JUMP_SPEED
-
-        elif self.jump_duration > 0 and self.up_pressed:
-            self.jump_duration -= dt
-            self.player_sprite.change_y = PLAYER_JUMP_SPEED
-
-        elif not self.air_jump_ready and not self.up_pressed and self.n_jumps < self.max_air_jumps:
-            self.air_jump_ready = True
-            self.n_jumps += 1
-
-        elif self.air_jump_ready and self.up_pressed:
-            self.jump_duration = PLAYER_JUMP_DURATION
-            flower_explosion(self, flower_coordinates[0], flower_coordinates[1], n_flowers=3, muted=False)
-            self.player_sprite.change_y = PLAYER_JUMP_SPEED
-            self.air_jump_ready = False
-
-        if self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x = -MOVEMENT_SPEED * dt
-        elif self.right_pressed and not self.left_pressed:
-            self.player_sprite.change_x = MOVEMENT_SPEED * dt
-
-    def shoot(self, delta_time):
-        if self.bullet_time < BULLET_RATE:
-            return
-
-        direction = None
-        if self.shoot_up_pressed:
-            if self.shoot_left_pressed:
-                direction = Direction.UP_LEFT
-            elif self.shoot_right_pressed:
-                direction = Direction.UP_RIGHT
-            else:
-                direction = Direction.UP
-        elif self.shoot_down_pressed:
-            if self.shoot_left_pressed:
-                direction = Direction.DOWN_LEFT
-            elif self.shoot_right_pressed:
-                direction = Direction.DOWN_RIGHT
-            else:
-                direction = Direction.DOWN
-        elif self.shoot_left_pressed:
-            direction = Direction.LEFT
-        elif self.shoot_right_pressed:
-            direction = Direction.RIGHT
-        else:
-            return
-
-        self.bullet_time = 0
-
-        bullet_x = 0
-        if self.player_sprite.facing_direction == Direction.LEFT:
-            bullet_x = self.gun_sprite.center_x - self.gun_sprite.width / 2
-        else:
-            bullet_x = self.gun_sprite.center_x + self.gun_sprite.width / 2
-
-        bullet_y = self.gun_sprite.center_y + self.gun_sprite.height / 4
-        self.bullet_list.append(Bullet(direction, self, center_x=bullet_x, center_y=bullet_y))
-        self.ass.play_sound("pew")
-
-
     def on_update(self, delta_time):
         """ Movement and game logic """
         if self.game_over or self.win:
+            self.particle_list.on_update(delta_time)
             return
 
         self.physics_engine.update()
-        self.update_player_speed(delta_time)
-        self.bullet_time += delta_time
 
         self.enemy_list.on_update(delta_time)
         self.particle_list.on_update(delta_time)
         self.player_list.on_update(delta_time)
-        self.gun_list.on_update(self.player_sprite)
+        self.gun_list.on_update(self.player)
         self.bullet_list.on_update(delta_time)
         self.enemy_bullet_list.on_update(delta_time)
         self.enemy_list.on_update(delta_time)
         self.particle_list.on_update(delta_time)
         
-        water_collided = arcade.check_for_collision_with_list(self.player_sprite, self.scene['water'])
+        water_collided = arcade.check_for_collision_with_list(self.player, self.scene['water'])
         if len(water_collided) > 0:
-            self.player_sprite.hit(4)
+            self.player.hit(4)
 
         # entities collision logic
         # collision on player's bullet
@@ -343,31 +267,22 @@ class Level(arcade.View):
             enemies_collided = arcade.check_for_collision_with_list(b, self.enemy_list)
             if enemies_collided:
                 if enemies_collided[0].hit(b.damage):
+                    if not isinstance(enemies_collided[0], Boss) and enemies_collided[0].hp <= 0:
+                        self.boss.hp = max(5, self.boss.hp - enemies_collided[0].score)
                     self.bullet_list.remove(b)
             elif arcade.check_for_collision_with_list(b, self.scene["walls"]):
                 self.bullet_list.remove(b)
         
         # collision on player
-        enemies_collided = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
+        enemies_collided = arcade.check_for_collision_with_list(self.player, self.enemy_list)
         if enemies_collided:
-            self.player_sprite.hit(enemies_collided[0].damage)
+            self.player.hit(enemies_collided[0].damage)
+            self.health_label = f"Gunberg's health: {int(self.player.hp)}"
         
-        bullets_collided = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_bullet_list)
+        bullets_collided = arcade.check_for_collision_with_list(self.player, self.enemy_bullet_list)
         if bullets_collided:
-            if self.player_sprite.hit(bullets_collided[0].damage):
+            if self.player.hit(bullets_collided[0].damage):
                 self.enemy_bullet_list.remove(bullets_collided[0])
-
-        # update player facing direction in function of shoot direction and movement direction
-        if self.shoot_left_pressed:
-            self.player_sprite.facing_direction = Direction.LEFT
-        elif self.shoot_right_pressed:
-            self.player_sprite.facing_direction = Direction.RIGHT
-        elif self.left_pressed:
-            self.player_sprite.facing_direction = Direction.LEFT
-        elif self.right_pressed:
-            self.player_sprite.facing_direction = Direction.RIGHT
-
-        self.shoot(delta_time)
 
         # Position the camera
         self.center_camera_to_player()
@@ -393,6 +308,9 @@ class Level(arcade.View):
         elif key == arcade.key.N:
             # skip to next level (this is a cheat used for debugging purposes)
             self.next_level()
+        elif key == arcade.key.R:
+            # skip to next level (this is a cheat used for debugging purposes)
+            self.restart_level()
 
 
     def on_key_release(self, key, modifiers):
