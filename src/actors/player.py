@@ -44,6 +44,7 @@ class Player(AnimatedSprite):
         return ret
 
     def update_player_speed(self, dt):
+        # TODO fix double jump
         # Calculate speed based on the keys pressed
         self.change_x = 0
         #self.change_y = 0
@@ -115,7 +116,7 @@ class Player(AnimatedSprite):
         bullet_y = self.game.gun_sprite.center_y + self.game.gun_sprite.height / 4
         self.game.bullet_list.append(Bullet(self.game,
                                             direction,
-                                            self.game.ass.textures["flower"][4],
+                                            self.game.ass.textures["flowers"][4],
                                             scale=SPRITE_SCALING * 3,
                                             center_x=bullet_x,
                                             center_y=bullet_y))

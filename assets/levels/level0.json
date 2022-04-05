@@ -254,11 +254,11 @@
  "tilesets":[
         {
          "firstgid":1,
-         "source":"..\/tilesets\/level0"
+         "source":"tilesets\/level0"
         }, 
         {
          "firstgid":1651,
-         "source":"..\/tilesets\/custom"
+         "source":"tilesets\/custom"
         }],
  "tilewidth":16,
  "type":"map",

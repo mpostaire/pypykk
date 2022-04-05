@@ -31,8 +31,6 @@ class Boss(EvilCar):
         self.hp = 5 + max(0, self.game.score)
 
     def on_update(self, delta_time):
-        print(self.hp)
-
         self.think(delta_time)
         self.change_x = self.speed * self.dir
         self.change_y = (sin((self.time_alive + delta_time)*10) - sin(self.time_alive * 10)) * 300
@@ -54,7 +52,7 @@ class Boss(EvilCar):
             self.shoot_time = 0
             self.shoot_max = random.uniform(0.8, 1.5)
             if self.center_x > self.game.camera.position[0] and self.center_x < self.game.camera.position[0] + SCREEN_WIDTH and self.center_y > self.game.camera.position[1] and self.center_y < self.game.camera.position[1] + SCREEN_HEIGHT:
-                self.game.ass.play_sound("explosion")
+                self.game.ass.play_sound("boom")
             if random.random() < 0.5:
                 for d in [Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT]:
                     self.game.enemy_bullet_list.append(Bullet(self.game,

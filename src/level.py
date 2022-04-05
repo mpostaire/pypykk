@@ -23,7 +23,7 @@ class Level(arcade.View):
         """
         # Call the parent class initializer
         super().__init__()
-        self.id = id % len(listdir("assets/levels"))
+        self.id = id % (len(listdir("assets/levels")) - 1)
         self.ass = ass
 
         # A Camera that can be used for scrolling the screen

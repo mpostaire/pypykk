@@ -39,29 +39,14 @@ class AssetManager():
 
     def load_assets(self):
         self.sounds = {
-            "game_over": arcade.load_sound("assets/yaaaoooow.wav"),
-            "pew": [
-                arcade.load_sound("assets/pew_00.mp3"),
-                arcade.load_sound("assets/pew_01.mp3"),
-                arcade.load_sound("assets/pew_02.mp3")
-            ],
-            "ploof": [
-                arcade.load_sound("assets/ploof_00.wav"),
-                arcade.load_sound("assets/ploof_01.wav"),
-                arcade.load_sound("assets/ploof_02.wav")
-            ],
-            "vroom": [
-                arcade.load_sound("assets/vroom_00.mp3"),
-                arcade.load_sound("assets/vroom_01.mp3"),
-                arcade.load_sound("assets/vroom_02.mp3")
-            ],
-            "step": arcade.load_sound("assets/step.wav"),  # FIXME this sound is horrible for the ears in game
-            "oof": [
-                arcade.load_sound("assets/oof_00.wav"),
-                arcade.load_sound("assets/oof_01.wav")
-            ],
-            "explosion": arcade.load_sound("assets/boom_00.wav"),
-            "music": arcade.load_sound("assets/Gilles Stella - Libre de droit.m4a")
+            "game_over": arcade.load_sound("assets/audio/yaaaoooow.ogg"),
+            "pew": [arcade.load_sound(f"assets/audio/pew_0{x}.ogg") for x in range(3)],
+            "ploof": [arcade.load_sound(f"assets/audio/ploof_0{x}.ogg") for x in range(3)],
+            "vroom": [arcade.load_sound(f"assets/audio/vroom_0{x}.ogg") for x in range(3)],
+            "step": arcade.load_sound("assets/audio/step.ogg"),  # FIXME this sound is horrible for the ears in game
+            "oof": [arcade.load_sound(f"assets/audio/oof_0{x}.ogg") for x in range(2)],
+            "boom": arcade.load_sound("assets/audio/boom_00.ogg"),
+            "music": arcade.load_sound("assets/audio/Gilles Stella - Libre de droit.ogg")
         }
 
         dims = [
@@ -71,18 +56,18 @@ class AssetManager():
             (51, 48)
         ]
         self.textures = {
-            "flower": arcade.load_spritesheet("assets/flowers.png", 32, 32, 15, 45),
-            "smoke": arcade.load_spritesheet("assets/smoke.png", 16, 16, 2, 3),
-            "evil_car_right": arcade.load_spritesheet("assets/evil_car_0_right.png", 576//2, 118, 2, 2),
-            "evil_car_left": arcade.load_spritesheet("assets/evil_car_0_left.png", 576//2, 118, 2, 2),
-            "boss_car_right": arcade.load_spritesheet("assets/very_evil_car_0_right.png", 576//2, 84, 2, 2),
-            "boss_car_left": arcade.load_spritesheet("assets/very_evil_car_0_left.png", 576//2, 84, 2, 2),
-            "gunberg_right": arcade.load_spritesheet("assets/GirlyGirl_walkcycle_right.png", 240, 240, 5, 9),
-            "gunberg_left": arcade.load_spritesheet("assets/GirlyGirl_walkcycle_left.png", 240, 240, 5, 9),
-            "gun_right": arcade.load_texture("assets/gun.png"),
-            "gun_left": arcade.load_texture("assets/gun.png", flipped_horizontally=True),
+            "flowers": arcade.load_spritesheet("assets/textures/flowers.png", 32, 32, 15, 45),
+            "smoke": arcade.load_spritesheet("assets/textures/smoke.png", 16, 16, 2, 3),
+            "evil_car_right": arcade.load_spritesheet("assets/textures/evil_car_right.png", 576 // 2, 118, 2, 2),
+            "evil_car_left": arcade.load_spritesheet("assets/textures/evil_car_left.png", 576 // 2, 118, 2, 2),
+            "boss_car_right": arcade.load_spritesheet("assets/textures/very_evil_car_right.png", 576 // 2, 84, 2, 2),
+            "boss_car_left": arcade.load_spritesheet("assets/textures/very_evil_car_left.png", 576 // 2, 84, 2, 2),
+            "gunberg_right": arcade.load_spritesheet("assets/textures/gunberg_right.png", 240, 240, 5, 9),
+            "gunberg_left": arcade.load_spritesheet("assets/textures/gunberg_left.png", 240, 240, 5, 9),
+            "gun_right": arcade.load_texture("assets/textures/gun.png"),
+            "gun_left": arcade.load_texture("assets/textures/gun.png", flipped_horizontally=True),
             "junk": [
-                arcade.load_texture(f'assets/junk_0{i}.png', width=dims[i][0], height=dims[i][1])
+                arcade.load_texture(f'assets/textures/junk_0{i}.png', width=dims[i][0], height=dims[i][1])
                 for i in range(3)
             ]
         }

@@ -432,20 +432,20 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":4554.66666666667,
-                 "y":25.6666666666666
+                 "x":4478.66666666667,
+                 "y":-24.3333333333334
                 }, 
                 {
                  "height":0,
-                 "id":48,
+                 "id":50,
                  "name":"player_spawn",
                  "point":true,
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":23.333333333333,
-                 "y":255
+                 "x":23.9999999999997,
+                 "y":255.333333333333
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -483,7 +483,7 @@
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":49,
+ "nextobjectid":51,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.8.4",
@@ -491,11 +491,11 @@
  "tilesets":[
         {
          "firstgid":1,
-         "source":"..\/tilesets\/level0"
+         "source":"tilesets\/level0"
         }, 
         {
          "firstgid":1651,
-         "source":"..\/tilesets\/custom"
+         "source":"tilesets\/custom"
         }],
  "tilewidth":16,
  "type":"map",

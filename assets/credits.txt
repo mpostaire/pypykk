@@ -1,2 +1,0 @@
-tileset4.png:'Damian Gasinski aka Gassasin'
-flowers.png:'sicklyseraph'
