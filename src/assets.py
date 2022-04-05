@@ -7,6 +7,8 @@ class AssetManager():
         self.sounds = {}
         self.textures = {}
         
+        self.muted = False
+
         self.played_sounds = {
             "effects": [],
             "music": None
@@ -18,9 +20,9 @@ class AssetManager():
 
         player = None
         if isinstance(self.sounds[sound], list):
-            player = arcade.play_sound(random.choice(self.sounds[sound]), looping=repeat)
+            player = arcade.play_sound(random.choice(self.sounds[sound]), volume=0 if self.muted else 1, looping=repeat)
         else:
-            player = arcade.play_sound(self.sounds[sound], looping=repeat)
+            player = arcade.play_sound(self.sounds[sound], volume=0 if self.muted else 1, looping=repeat)
 
         if sound == "music":
             self.played_sounds["music"] = player
@@ -30,12 +32,19 @@ class AssetManager():
     def stop_sounds(self, also_stop_music=False):
         for p in self.played_sounds["effects"]:
             arcade.stop_sound(p)
-            self.played_sounds["effects"] = []
+        self.played_sounds["effects"] = []
 
         if also_stop_music:
             arcade.stop_sound(self.played_sounds["music"])
             self.played_sounds["music"] = None
 
+    def toggle_mute(self):
+        self.muted = not self.muted
+
+        for p in self.played_sounds["effects"]:
+            p.volume = 0 if self.muted else 1
+
+        self.played_sounds["music"].volume = 0 if self.muted else 1
 
     def load_assets(self):
         self.sounds = {

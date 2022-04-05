@@ -309,8 +309,9 @@ class Level(arcade.View):
             # skip to next level (this is a cheat used for debugging purposes)
             self.next_level()
         elif key == arcade.key.R:
-            # skip to next level (this is a cheat used for debugging purposes)
             self.restart_level()
+        elif key == arcade.key.M:
+            self.ass.toggle_mute()
 
 
     def on_key_release(self, key, modifiers):

@@ -43,15 +43,11 @@ class Player(AnimatedSprite):
             self.game.ass.play_sound("oof")
         return ret
 
-    def update_player_speed(self, dt):
-        # TODO fix double jump
+    def update_player_speed(self, delta_time):
+        # FIXME when a jump is released before max ammount, spamming jump key allows for more than 1 double jump
         # Calculate speed based on the keys pressed
         self.change_x = 0
-        #self.change_y = 0
-        flower_coordinates = (
-            self.center_x + (self.width // 2),
-            self.center_y - self.height // 2
-        )
+
         if self.game.physics_engine.can_jump():
             self.air_jump_ready = False
             self.n_jumps = 0
@@ -60,7 +56,7 @@ class Player(AnimatedSprite):
                 self.change_y = PLAYER_JUMP_SPEED
 
         elif self.jump_duration > 0 and self.game.up_pressed:
-            self.jump_duration -= dt
+            self.jump_duration -= delta_time
             self.change_y = PLAYER_JUMP_SPEED
 
         elif not self.air_jump_ready and not self.game.up_pressed and self.n_jumps < self.max_air_jumps:
@@ -69,14 +65,18 @@ class Player(AnimatedSprite):
 
         elif self.air_jump_ready and self.game.up_pressed:
             self.jump_duration = PLAYER_JUMP_DURATION
+            flower_coordinates = (
+                self.center_x + (self.width // 2),
+                self.center_y - self.height // 2
+            )
             flower_explosion(self.game, flower_coordinates[0], flower_coordinates[1], n_flowers=3, muted=False)
             self.change_y = PLAYER_JUMP_SPEED
             self.air_jump_ready = False
 
         if self.game.left_pressed and not self.game.right_pressed:
-            self.change_x = -MOVEMENT_SPEED * dt
+            self.change_x = -MOVEMENT_SPEED * delta_time
         elif self.game.right_pressed and not self.game.left_pressed:
-            self.change_x = MOVEMENT_SPEED * dt
+            self.change_x = MOVEMENT_SPEED * delta_time
 
     def shoot(self, delta_time):
         self.bullet_time += delta_time
