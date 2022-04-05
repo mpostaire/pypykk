@@ -3,23 +3,22 @@ import random
 from src.constants import *
 from src.particles import particle
 from src.particles.flower import FlowerParticle
+from src.actors.animated_sprite import AnimatedSprite
 
-class EvilCar(arcade.Sprite):
+class EvilCar(AnimatedSprite):
 
     def __init__(self, game, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.scale = SPRITE_SCALING
-        self.facing_direction = Direction.RIGHT
+        idle_textures = {
+            Direction.RIGHT: game.ass.textures["evil_car_right"],
+            Direction.LEFT: game.ass.textures["evil_car_left"]
+        }
+        move_textures = {
+            Direction.RIGHT: game.ass.textures["evil_car_right"],
+            Direction.LEFT: game.ass.textures["evil_car_left"]
+        }
+        super().__init__(idle_textures, move_textures, *args, **kwargs)
         self.game = game
 
-        self.car_textures = {
-            Direction.RIGHT: self.game.ass.textures["evil_car_right"],
-            Direction.LEFT: self.game.ass.textures["evil_car_left"],
-        }
-        self.game = game
-        self.cur_texture = 0
-        self.texture = self.car_textures[self.facing_direction][self.cur_texture]
-        self.texture_time = 0
         self.state = 'spawning'
         self.speed = 300 + random.random() * 150
         self.dir = 1
@@ -28,28 +27,14 @@ class EvilCar(arcade.Sprite):
 
         self.smoke_time = 0
 
-        self.blink_time = 0
-        self.blink_ammount = 4
-        self.blink = self.blink_ammount
-
-        self.sound_time = 0
-        self.sound_max = random.uniform(1, 3)
+        self.sound = "vroom"
 
         self.hp = 5
         self.damage = 1
+        self.score = 2
 
     def update_animation(self, delta_time):
-        self.texture_time += delta_time
-
-        if (self.change_x != 0 or self.change_y != 0) and self.texture_time > 0.05:
-            self.texture_time = 0
-            self.cur_texture = (self.cur_texture + 1) % len(self.car_textures[self.facing_direction])
-            self.texture = self.car_textures[self.facing_direction][self.cur_texture]
-        elif (self.change_x == 0 and self.change_y == 0):
-            if self.cur_texture != 0:
-                self.texture_time = 0
-                self.cur_texture = 0
-            self.texture = self.car_textures[self.facing_direction][self.cur_texture]
+        super().update_animation(delta_time)
 
         self.smoke_time += delta_time
         if self.smoke_time > 0.5:
@@ -62,7 +47,6 @@ class EvilCar(arcade.Sprite):
             particle.smoke(self.game, smoke_x, self.center_y)
 
     def on_update(self, delta_time):
-        """ Move the player """
         if self.state == 'spawning':
             self.think(delta_time)
             self.change_x = 0
@@ -76,37 +60,17 @@ class EvilCar(arcade.Sprite):
 
         self.update_animation(delta_time)
 
-        # blink on hit
-        self.blink_time += delta_time
-        if self.blink < self.blink_ammount and self.blink_time >= 0.06:
-            self.blink += 1
-            self.blink_time = 0
-            self.alpha = 255 if self.alpha == 0 else 0
-        elif self.blink >= self.blink_ammount:
-            self.alpha = 255
+        self.blink_animation(delta_time)
 
-        # sound
-        self.sound_time += delta_time
-        if self.sound_time >= self.sound_max:
-            self.sound_time = 0
-            self.soud_max = random.uniform(1, 3)
-            if self.center_x > self.game.camera.position[0] and self.center_x < self.game.camera.position[0] + SCREEN_WIDTH and self.center_y > self.game.camera.position[1] and self.center_y < self.game.camera.position[1] + SCREEN_HEIGHT:
-                self.game.ass.play_sound("vroom")
+        self.update_sound(delta_time)
 
     def hit(self, damage):
-        if self.blink < self.blink_ammount:
-            return False
-
-        self.hp -= damage
-
-        self.blink = 0
-        self.blink_time = 0
-
-        if self.hp <= 0:
+        ret = super().hit(damage)
+        if ret and self.hp <= 0:
             self.game.enemy_list.remove(self)
             particle.flower_explosion(self.game, self.center_x, self.center_y)
-            self.game.score -= 2
-        return True
+            self.game.score -= self.score
+        return ret
 
     def think(self, dt):
         wall_hit_list = arcade.check_for_collision_with_list(
@@ -125,7 +89,3 @@ class EvilCar(arcade.Sprite):
                     self.facing_direction = Direction.LEFT
                 else:
                     self.facing_direction = Direction.RIGHT
-
-            
-
-

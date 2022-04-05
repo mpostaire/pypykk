@@ -10,8 +10,7 @@ class FlowerParticle(arcade.Sprite):
 
         self.game = game
 
-        flower_textures = self.game.ass.textures["flower"]
-        self.texture = random.choice(flower_textures)
+        self.texture = random.choice(self.game.ass.textures["flowers"])
         self.elapsed = 0
 
         self.vel_x = random.uniform(-150, 150)

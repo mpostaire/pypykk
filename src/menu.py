@@ -66,7 +66,7 @@ class Menu(arcade.View):
 
     def on_key_press(self, symbol, modifiers):
         if symbol == arcade.key.SPACE:
-            self.window.show_view(Level(1, self.ass, 24))
+            self.window.show_view(Level(STARTING_LEVEL, self.ass, STARTING_SCORE))
 
     def on_show_view(self):
         """ Called once when view is activated. """
