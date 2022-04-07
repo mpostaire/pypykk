@@ -1,5 +1,6 @@
 import arcade
 import random
+from src.constants import *
 
 class AssetManager():
 
@@ -7,7 +8,7 @@ class AssetManager():
         self.sounds = {}
         self.textures = {}
         
-        self.muted = False
+        self.muted = MUTED_STATUS
 
         self.played_sounds = {
             "effects": [],
@@ -71,8 +72,8 @@ class AssetManager():
             "evil_car_left": arcade.load_spritesheet("assets/textures/evil_car_left.png", 576 // 2, 118, 2, 2),
             "boss_car_right": arcade.load_spritesheet("assets/textures/very_evil_car_right.png", 576 // 2, 84, 2, 2),
             "boss_car_left": arcade.load_spritesheet("assets/textures/very_evil_car_left.png", 576 // 2, 84, 2, 2),
-            "gunberg_right": arcade.load_spritesheet("assets/textures/gunberg_right.png", 240, 240, 5, 9),
-            "gunberg_left": arcade.load_spritesheet("assets/textures/gunberg_left.png", 240, 240, 5, 9),
+            "gunberg_right": arcade.load_spritesheet("assets/textures/gunberg_right.png", 16, 16, 5, 9),
+            "gunberg_left": arcade.load_spritesheet("assets/textures/gunberg_left.png", 16, 16, 5, 9),
             "gun_right": arcade.load_texture("assets/textures/gun.png"),
             "gun_left": arcade.load_texture("assets/textures/gun.png", flipped_horizontally=True),
             "junk": [

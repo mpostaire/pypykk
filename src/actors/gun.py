@@ -5,7 +5,7 @@ class Gun(arcade.Sprite):
 
     def __init__(self, game, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.scale = SPRITE_SCALING * 4
+        self.scale = 2
         self.game = game
 
         self.gun_textures = {

@@ -1,8 +1,6 @@
 import arcade
 import random
 from src.constants import *
-from src.particles import particle
-from src.particles.flower import FlowerParticle
 from src.actors.bullet import Bullet
 from src.actors.evil_car import EvilCar
 from math import sin

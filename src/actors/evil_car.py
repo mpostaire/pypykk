@@ -2,7 +2,6 @@ import arcade
 import random
 from src.constants import *
 from src.particles import particle
-from src.particles.flower import FlowerParticle
 from src.actors.animated_sprite import AnimatedSprite
 
 class EvilCar(AnimatedSprite):

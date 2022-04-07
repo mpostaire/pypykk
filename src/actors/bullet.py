@@ -1,6 +1,5 @@
 import arcade
 from src.constants import *
-import random
 
 class Bullet(arcade.Sprite):
 
@@ -11,6 +10,7 @@ class Bullet(arcade.Sprite):
         self.texture = texture
         self.damage = damage
         self.speed = speed
+        self.scale = 0.75
 
     def on_update(self, delta_time):
         """ Move the bullet """

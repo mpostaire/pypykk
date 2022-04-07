@@ -1,4 +1,3 @@
-import arcade
 from src.constants import *
 from src.particles.particle import flower_explosion
 from src.actors.bullet import Bullet

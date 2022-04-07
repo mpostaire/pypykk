@@ -4,7 +4,7 @@ from src.constants import *
 
 def main():
     """ Main function """
-    window = arcade.Window(title=SCREEN_TITLE, height=SCREEN_HEIGHT, width=SCREEN_WIDTH)
+    window = arcade.Window(title=SCREEN_TITLE, height=SCREEN_HEIGHT, width=SCREEN_WIDTH, center_window=True)
     window.show_view(Menu())
     arcade.run()
 

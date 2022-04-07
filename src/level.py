@@ -4,13 +4,10 @@ from src.actors.player import Player
 from src.actors.evil_car import EvilCar
 from src.actors.junk import Junk
 from src.actors.boss import Boss
-
 from src.actors.gun import Gun
-from src.actors.bullet import Bullet
 from src.utils import object_coords_to_game_coords
 from src.constants import *
-from arcade import gui
-from src.particles.particle import flower_explosion
+from src.ui.hud import HUD
 
 class Level(arcade.View):
     """
@@ -25,30 +22,24 @@ class Level(arcade.View):
         super().__init__()
         self.id = id % (len(listdir("assets/levels")) - 1)
         self.ass = ass
-
-        # A Camera that can be used for scrolling the screen
-        self.camera = None
-
-        # TODO edit this following the total number of enemies in all the levels
         self.score = score
 
-        # Variables that will hold sprite lists
-        self.player_list = None
+    
+    def on_show_view(self):
+        """ Called once when view is activated. """
+        self.setup()
 
-        # Set up the player info
-        self.player = None
+    def on_hide_view(self):
+        self.ass.stop_sounds()
 
-        self.boss = None
+    def next_level(self):
+        self.window.show_view(Level(self.id + 1, self.ass, self.score))
+    
+    def restart_level(self):
+        self.window.show_view(Level(self.id, self.ass, STARTING_SCORE))
 
-        self.gun_list = None
-        self.gun_sprite = None
-
-        # Variables that will hold bullet lists
-        self.bullet_list = None
-
-        self.enemy_bullet_list = None
-
-        self.particle_list = None
+    def setup(self):
+        """ Set up the game and initialize the variables. """
 
         # Track the current state of what key is pressed
         self.left_pressed = False
@@ -66,22 +57,7 @@ class Level(arcade.View):
 
         # Set the background color
         arcade.set_background_color(arcade.color.SKY_BLUE)
-    
-    def on_show_view(self):
-        """ Called once when view is activated. """
-        self.setup()
 
-    def on_hide_view(self):
-        self.ass.stop_sounds()
-
-    def next_level(self):
-        self.window.show_view(Level(self.id + 1, self.ass, self.score))
-    
-    def restart_level(self):
-        self.window.show_view(Level(self.id, self.ass, STARTING_SCORE))
-
-    def setup(self):
-        """ Set up the game and initialize the variables. """
         options = {
             "walls": {
                 "use_spatial_hash": True,
@@ -104,7 +80,7 @@ class Level(arcade.View):
         self.level_tile_map = arcade.tilemap.load_tilemap(f"assets/levels/level{self.id}.json", TILE_SCALING, layer_options=options)
         self.scene = arcade.Scene.from_tilemap(self.level_tile_map)
 
-        # Set up the Camera
+        # A Camera that can be used for scrolling the screen
         self.camera = arcade.Camera(self.window.width, self.window.height)
 
         # Sprite lists
@@ -119,6 +95,9 @@ class Level(arcade.View):
         self.player = Player(self, center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2)
         self.player_list.append(self.player)
 
+        self.ui = HUD(self)
+
+        #Spawn enemies
         enemy_spawn_list = list(filter(lambda x: 'enemy' in x.name and 'spawn' in x.name, self.level_tile_map.get_tilemap_layer('info').tiled_objects))
         for point in enemy_spawn_list:
             cx, cy = object_coords_to_game_coords(point.coordinates, self.level_tile_map)
@@ -147,8 +126,6 @@ class Level(arcade.View):
 
         self.ass.play_sound("music", repeat=True)
 
-        #Spawn enemies
-
 
     def on_draw(self):
         """ Render the screen. """
@@ -173,56 +150,7 @@ class Level(arcade.View):
 
         self.scene['water'].draw(pixelated=True)
 
-        # draw UI
-        arcade.draw_rectangle_filled(
-                self.camera.position[0] + 120,
-                self.camera.position[1] + SCREEN_HEIGHT - 25,
-                220, 32, (255, 255, 255, 200))
-        arcade.draw_text(f"Gunberg's health: {int(self.player.hp)}",
-                        self.camera.position[0] + 16,
-                        self.camera.position[1] + SCREEN_HEIGHT - 32,
-                        arcade.color.BLACK,
-                        18)
-        arcade.draw_rectangle_filled(
-                self.camera.position[0] + SCREEN_WIDTH - 140,
-                self.camera.position[1] + SCREEN_HEIGHT - 25,
-                246, 32, (255, 255, 255, 200))
-        arcade.draw_text(f"Global warming: {int(self.score)}°C",
-                        self.camera.position[0] + SCREEN_WIDTH - 256,
-                        self.camera.position[1] + SCREEN_HEIGHT - 32,
-                        arcade.color.BLACK,
-                        18)
-
-        if self.game_over:
-            arcade.draw_rectangle_filled(
-                self.camera.position[0] + (SCREEN_WIDTH / 2) + 64,
-                self.camera.position[1] + (SCREEN_HEIGHT / 2) + 32,
-                300, 64, (255, 255, 255, 200))
-            arcade.draw_text(f"GAME OVER",
-                            self.camera.position[0] + (SCREEN_WIDTH / 2) - 32,
-                            self.camera.position[1] + (SCREEN_HEIGHT / 2) + 32,
-                            arcade.color.BLACK,
-                            24)
-            arcade.draw_text(f"All hope is forever lost :'(",
-                            self.camera.position[0] + (SCREEN_WIDTH / 2) - 64,
-                            self.camera.position[1] + (SCREEN_HEIGHT / 2) + 8,
-                            arcade.color.BLACK,
-                            18)
-        elif self.win:
-            arcade.draw_rectangle_filled(
-                self.camera.position[0] + (SCREEN_WIDTH / 2) + 64,
-                self.camera.position[1] + (SCREEN_HEIGHT / 2) + 32,
-                300, 64, (255, 255, 255, 200))
-            arcade.draw_text(f"YOU WON!",
-                            self.camera.position[0] + (SCREEN_WIDTH / 2) - 32,
-                            self.camera.position[1] + (SCREEN_HEIGHT / 2) + 32,
-                            arcade.color.BLACK,
-                            24)
-            arcade.draw_text(f"Global warming ended :D",
-                            self.camera.position[0] + (SCREEN_WIDTH / 2) - 64,
-                            self.camera.position[1] + (SCREEN_HEIGHT / 2) + 8,
-                            arcade.color.BLACK,
-                            18)
+        self.ui.draw()
 
 
     def center_camera_to_player(self):
@@ -238,7 +166,7 @@ class Level(arcade.View):
             screen_center_y = 0
         player_centered = screen_center_x, screen_center_y
 
-        self.camera.move_to(player_centered)
+        self.camera.move_to(player_centered, CAMERA_MOVE_SPEED)
 
     def on_update(self, delta_time):
         """ Movement and game logic """
@@ -286,6 +214,8 @@ class Level(arcade.View):
 
         # Position the camera
         self.center_camera_to_player()
+
+        self.ui.on_update(delta_time)
 
 
     def on_key_press(self, key, modifiers):

@@ -1,5 +1,4 @@
 from enum import Enum
-import arcade
 
 class Direction(Enum):
     UP = 0
@@ -11,7 +10,14 @@ class Direction(Enum):
     DOWN_LEFT = 6
     DOWN_RIGHT = 7
 
-SPRITE_SCALING = 0.2
+MUTED_STATUS = False
+
+CAMERA_MOVE_SPEED = 0.5
+
+# When arcade Camera.zoom() will be implemented, these will not be necessary to zoom the screen
+# (utils function to voncert coordinates will be useless as well)
+SPRITE_SCALING = 3
+TILE_SCALING = 2.5
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -21,7 +27,6 @@ MOVEMENT_SPEED = 200
 BULLET_SPEED = 800
 BULLET_RATE = 0.2
 
-TILE_SCALING = 2.5
 GRAVITY = 1.0
 
 PLAYER_MOVEMENT_SPEED = 1
