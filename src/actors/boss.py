@@ -6,10 +6,9 @@ from src.actors.evil_car import EvilCar
 from math import sin
 
 class Boss(EvilCar):
-    # TODO boss health
 
-    def __init__(self, game, *args, **kwargs):
-        super().__init__(game, *args, **kwargs)
+    def __init__(self, game, collision_walls, *args, **kwargs):
+        super().__init__(game, collision_walls, *args, **kwargs)
 
         self.idle_texture = {
             Direction.RIGHT: game.ass.textures["boss_car_right"],
@@ -76,21 +75,3 @@ class Boss(EvilCar):
             self.game.score = 0
             self.game.win = True
         return ret
-
-    def think(self, dt):
-        wall_hit_list = arcade.check_for_collision_with_list(
-            self,
-            self.game.scene['invis_walls']
-        )
-        if self.state == 'spawning':
-            if len(wall_hit_list) > 0:
-                self.state = 'active'
-                self.center_y += self.gravity * dt * 2
-
-        else:
-            if len(wall_hit_list) > 0:
-                self.dir *= - 1
-                if self.facing_direction == Direction.RIGHT:
-                    self.facing_direction = Direction.LEFT
-                else:
-                    self.facing_direction = Direction.RIGHT

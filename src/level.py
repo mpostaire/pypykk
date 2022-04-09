@@ -52,6 +52,7 @@ class Level(arcade.View):
         self.shoot_up_pressed = False
         self.shoot_down_pressed = False
 
+        self.paused = False
         self.game_over = False
         self.win = False
 
@@ -102,12 +103,14 @@ class Level(arcade.View):
         for point in enemy_spawn_list:
             cx, cy = object_coords_to_game_coords(point.coordinates, self.level_tile_map)
             if 'car' in point.name:
-                enemy = EvilCar(self, center_x=cx, center_y=cy)
+                enemy = EvilCar(self, 'walls', center_x=cx)
             elif 'junk' in point.name:
-                enemy = Junk(self, center_x=cx, center_y=cy)
+                enemy = Junk(self, center_x=cx)
+                enemy.base_y = cy + enemy.height // 2
             elif 'boss' in point.name:
-                enemy = Boss(self, center_x=cx, center_y=cy)
+                enemy = Boss(self, 'invis_walls', center_x=cx)
                 self.boss = enemy
+            enemy.center_y = cy + enemy.height // 2
             self.enemy_list.append(enemy)
         self.scene.add_sprite_list_before('enemies', 'water',self.enemy_list)
         self.scene.add_sprite_list_before('player', 'water',self.player_list)
@@ -170,6 +173,9 @@ class Level(arcade.View):
 
     def on_update(self, delta_time):
         """ Movement and game logic """
+        if self.paused and not self.game_over and not self.win:
+            self.ui.on_update(delta_time)
+            return
         if self.game_over or self.win:
             self.particle_list.on_update(delta_time)
             return
@@ -242,7 +248,8 @@ class Level(arcade.View):
             self.restart_level()
         elif key == arcade.key.M:
             self.ass.toggle_mute()
-
+        elif key == arcade.key.ESCAPE or key == arcade.key.P:
+            self.paused = not self.paused
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
