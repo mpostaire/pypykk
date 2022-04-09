@@ -26,10 +26,9 @@ class Player(AnimatedSprite):
         self.bullet_time = 0
 
         self.jump_duration = PLAYER_JUMP_DURATION
-
-        self.max_air_jumps = 1
         self.n_jumps = 0
-        self.air_jump_ready = False
+        self.max_jumps = 2
+        self.jump_cancelled = False
 
         self.hp = 6
 
@@ -47,35 +46,33 @@ class Player(AnimatedSprite):
         # Calculate speed based on the keys pressed
         self.change_x = 0
 
+        # Jump logic
         if self.game.physics_engine.can_jump():
-            self.air_jump_ready = False
             self.n_jumps = 0
-            self.jump_duration = PLAYER_JUMP_DURATION
-            if self.game.up_pressed and not self.game.down_pressed:
-                self.change_y = PLAYER_JUMP_SPEED
-
-        elif self.jump_duration > 0 and self.game.up_pressed:
-            self.jump_duration -= delta_time
-            self.change_y = PLAYER_JUMP_SPEED
-
-        elif not self.air_jump_ready and not self.game.up_pressed and self.n_jumps < self.max_air_jumps:
-            self.air_jump_ready = True
+            if self.game.up_pressed:
+                self.n_jumps += 1
+                self.jump_duration = 0
+                self.jump_cancelled = False
+                self.change_y = PLAYER_JUMP_SPEED * delta_time
+        elif not self.game.up_pressed:
+            self.jump_cancelled = True
+        elif self.game.up_pressed and not self.jump_cancelled and self.jump_duration < PLAYER_JUMP_DURATION:
+            self.jump_duration += delta_time
+            self.change_y = PLAYER_JUMP_SPEED * delta_time
+        elif self.game.up_pressed and self.jump_cancelled and self.n_jumps < self.max_jumps:
+            flower_explosion(self.game,
+                            self.center_x + self.width // 2,
+                            self.center_y - self.height // 2,
+                            n_flowers=3)
             self.n_jumps += 1
-
-        elif self.air_jump_ready and self.game.up_pressed:
-            self.jump_duration = PLAYER_JUMP_DURATION
-            flower_coordinates = (
-                self.center_x + (self.width // 2),
-                self.center_y - self.height // 2
-            )
-            flower_explosion(self.game, flower_coordinates[0], flower_coordinates[1], n_flowers=3, muted=False)
-            self.change_y = PLAYER_JUMP_SPEED
-            self.air_jump_ready = False
+            self.jump_duration = 0
+            self.jump_cancelled = False
+            self.change_y = PLAYER_JUMP_SPEED * delta_time
 
         if self.game.left_pressed and not self.game.right_pressed:
-            self.change_x = -MOVEMENT_SPEED * delta_time
+            self.change_x = -PLAYER_MOVEMENT_SPEED * delta_time
         elif self.game.right_pressed and not self.game.left_pressed:
-            self.change_x = MOVEMENT_SPEED * delta_time
+            self.change_x = PLAYER_MOVEMENT_SPEED * delta_time
 
     def shoot(self, delta_time):
         self.bullet_time += delta_time
