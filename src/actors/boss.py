@@ -28,6 +28,9 @@ class Boss(EvilCar):
         self.hp = 5 + max(0, self.game.score)
 
     def on_update(self, delta_time):
+        # prevents large delta_time (due to loading) that can cause cars to be stuck in walls
+        delta_time = min(delta_time, 0.03)
+
         self.think(delta_time)
         self.change_x = self.speed * self.dir
         self.change_y = (sin((self.time_alive + delta_time)*10) - sin(self.time_alive * 10)) * 300

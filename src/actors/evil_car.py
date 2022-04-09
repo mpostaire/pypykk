@@ -31,7 +31,7 @@ class EvilCar(AnimatedSprite):
 
         self.hp = 5
         self.damage = 1
-        self.score = 2
+        self.score = 0.5
 
     def update_animation(self, delta_time):
         super().update_animation(delta_time)
@@ -47,6 +47,9 @@ class EvilCar(AnimatedSprite):
             particle.smoke(self.game, smoke_x, self.center_y)
 
     def on_update(self, delta_time):
+        # prevents large delta_time (due to loading) that can cause cars to be stuck in walls
+        delta_time = min(delta_time, 0.03)
+
         self.think(delta_time)
         self.change_y = 0
         self.change_x = self.dir * self.speed
@@ -68,12 +71,8 @@ class EvilCar(AnimatedSprite):
         return ret
 
     def think(self, dt):
-        wall_hit_list = arcade.check_for_collision_with_list(
-            self,
-            self.game.scene[self.collision_walls]
-        )
-        if len(wall_hit_list) > 0:
-            self.dir *= - 1
+        if arcade.check_for_collision_with_list(self, self.game.scene[self.collision_walls]):
+            self.dir *= -1
             if self.facing_direction == Direction.RIGHT:
                 self.facing_direction = Direction.LEFT
             else:

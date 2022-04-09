@@ -30,7 +30,7 @@ class Junk(AnimatedSprite):
         
         self.hp = 5
         self.damage = 1
-        self.score = 1
+        self.score = 0.2
 
     def on_update(self, delta_time):
         super().on_update(delta_time)

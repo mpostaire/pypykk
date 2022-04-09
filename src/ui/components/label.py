@@ -7,7 +7,7 @@ class Label():
         self.font_size = font_size
         self.draw_background = draw_background
 
-        # if we change its text after creation it breaks water hitboxes (very strange), so we only use to compute size
+        # if we change its text after creation it breaks water hitboxes (very strange), so we only use this to compute size
         arcade_text = arcade.Text(text, x, y, color=self.color, font_size=self.font_size)
 
         self.x = x

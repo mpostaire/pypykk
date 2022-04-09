@@ -14,7 +14,7 @@ class HUD():
                                     font_size=18,
                                     draw_background=True)
 
-        self.score_label = Label(f"Global warming: {self.game.score}°C",
+        self.score_label = Label(f"Global warming: {self.game.score:.1f}°C",
                                     x=SCREEN_WIDTH - 256,
                                     y=SCREEN_HEIGHT - 32,
                                     color=arcade.color.BLACK,
@@ -52,7 +52,7 @@ class HUD():
         self.game_win_desc_label.y = (SCREEN_HEIGHT / 2) - self.game_win_desc_label.content_height
 
         self.paused = self.game.paused
-        self.paused_label = Label("PAUSE: press P to resume",
+        self.paused_label = Label("PAUSE: [P] to resume",
                                     color=arcade.color.BLACK,
                                     font_size=18,
                                     draw_background=True,
@@ -63,7 +63,7 @@ class HUD():
     def on_update(self, delta_time):
         self.health_label.text = f"Gunberg's health: {self.game.player.hp}"
     
-        self.score_label.text = f"Global warming: {self.game.score}°C"
+        self.score_label.text = f"Global warming: {self.game.score:.1f}°C"
         
         if self.game.paused != self.paused:
             self.paused_label.blink_elapsed = 0
