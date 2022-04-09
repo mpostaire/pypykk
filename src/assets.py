@@ -78,6 +78,6 @@ class AssetManager():
             "gun_left": arcade.load_texture("assets/textures/gun.png", flipped_horizontally=True),
             "junk": [
                 arcade.load_texture(f'assets/textures/junk_0{i}.png', width=dims[i][0], height=dims[i][1])
-                for i in range(3)
+                for i in range(4)
             ]
         }

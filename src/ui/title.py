@@ -10,22 +10,22 @@ class Title():
         self.title_label = Label("Treta Gunberg:",
                                     color=arcade.color.BLACK,
                                     font_size=32)
-        self.title_label.arcade_text.x = (SCREEN_WIDTH / 2) - self.title_label.arcade_text.content_width / 2
-        self.title_label.arcade_text.y = (SCREEN_HEIGHT / 2) + self.title_label.arcade_text.content_height / 2
+        self.title_label.x = (SCREEN_WIDTH / 2) - self.title_label.content_width / 2
+        self.title_label.y = (SCREEN_HEIGHT / 2) + self.title_label.content_height / 2
 
 
         self.desc_label = Label("The C02 slayer",
                                         color=arcade.color.BLACK,
                                         font_size=24)
-        self.desc_label.arcade_text.x = (SCREEN_WIDTH / 2) - self.desc_label.arcade_text.content_width / 2
-        self.desc_label.arcade_text.y = (SCREEN_HEIGHT / 2) - self.desc_label.arcade_text.content_height / 2
+        self.desc_label.x = (SCREEN_WIDTH / 2) - self.desc_label.content_width / 2
+        self.desc_label.y = (SCREEN_HEIGHT / 2) - self.desc_label.content_height / 2
 
         
         self.loading_label = Label("Loading...",
                                     y=32,
                                     color=arcade.color.WHITE,
                                     font_size=24)
-        self.loading_label.arcade_text.x = (SCREEN_WIDTH / 2) - self.loading_label.arcade_text.content_width / 2
+        self.loading_label.x = (SCREEN_WIDTH / 2) - self.loading_label.content_width / 2
     
 
         self.start_label = Label("Press SPACE to play",
@@ -33,7 +33,7 @@ class Title():
                                     color=arcade.color.WHITE,
                                     font_size=24,
                                     blink_time=0.5)
-        self.start_label.arcade_text.x = (SCREEN_WIDTH / 2) - self.start_label.arcade_text.content_width / 2
+        self.start_label.x = (SCREEN_WIDTH / 2) - self.start_label.content_width / 2
 
     def on_update(self, delta_time):
         self.start_label.on_update(delta_time)

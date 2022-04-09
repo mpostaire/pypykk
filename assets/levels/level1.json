@@ -163,7 +163,7 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1200,
+                 "x":1264,
                  "y":144
                 }, 
                 {
@@ -223,7 +223,7 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1264,
+                 "x":1296,
                  "y":144
                 }, 
                 {
@@ -235,7 +235,7 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1344,
+                 "x":1232,
                  "y":144
                 }, 
                 {
@@ -408,7 +408,7 @@
                 }, 
                 {
                  "height":0,
-                 "id":50,
+                 "id":54,
                  "name":"player_spawn",
                  "point":true,
                  "rotation":0,
@@ -483,7 +483,7 @@
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":51,
+ "nextobjectid":55,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.8.4",
