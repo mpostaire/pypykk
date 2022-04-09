@@ -30,7 +30,7 @@ class Player(AnimatedSprite):
         self.max_jumps = 2
         self.jump_cancelled = False
 
-        self.hp = 6
+        self.hp = PLAYER_HP
 
     def hit(self, damage):
         ret = super().hit(damage)
@@ -42,7 +42,6 @@ class Player(AnimatedSprite):
         return ret
 
     def update_player_speed(self, delta_time):
-        # FIXME when a jump is released before max ammount, spamming jump key allows for more than 1 double jump
         # Calculate speed based on the keys pressed
         self.change_x = 0
 
