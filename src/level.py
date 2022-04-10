@@ -5,16 +5,17 @@ from src.actors.evil_car import EvilCar
 from src.actors.junk import Junk
 from src.actors.boss import Boss
 from src.actors.gun import Gun
-from src.utils import object_coords_to_game_coords
+from src.utils import object_coords_to_game_coords, sprite_collides_with_script_activator
 from src.constants import *
 from src.ui.hud import HUD
+from src.ui.components.label import Label
 
 class Level(arcade.View):
     """
     Main application class.
     """
 
-    def __init__(self, id, ass, score):
+    def __init__(self, id, ass, score, player_init_hp=PLAYER_HP):
         """
         Initializer
         """
@@ -23,6 +24,8 @@ class Level(arcade.View):
         self.id = id % (len(listdir("assets/levels")) - 1)
         self.ass = ass
         self.score = score
+        self.init_score = score
+        self.player_init_hp = player_init_hp
 
     
     def on_show_view(self):
@@ -33,10 +36,13 @@ class Level(arcade.View):
         self.ass.stop_sounds()
 
     def next_level(self):
-        self.window.show_view(Level(self.id + 1, self.ass, self.score))
+        self.window.show_view(Level(self.id + 1, self.ass, self.score, player_init_hp=self.player.hp))
     
     def restart_level(self):
-        self.window.show_view(Level(self.id, self.ass, STARTING_SCORE))
+        self.window.show_view(Level(self.id, self.ass, self.init_score, player_init_hp=self.player_init_hp))
+
+    def restart_game(self):
+        self.window.show_view(Level(STARTING_LEVEL, self.ass, STARTING_SCORE))
 
     def setup(self):
         """ Set up the game and initialize the variables. """
@@ -52,9 +58,13 @@ class Level(arcade.View):
         self.shoot_up_pressed = False
         self.shoot_down_pressed = False
 
+        self.over_exit_door = False
+
         self.paused = False
         self.game_over = False
         self.win = False
+
+        self.boss = None
 
         # Set the background color
         arcade.set_background_color(arcade.color.SKY_BLUE)
@@ -69,9 +79,6 @@ class Level(arcade.View):
                 "hitbox_algorithm": "Simple"
             },
             "deco":{
-                "hitbox_algorithm": "None"
-            },
-            "objects": {
                 "hitbox_algorithm": "None"
             },
             "water": {
@@ -93,13 +100,28 @@ class Level(arcade.View):
         self.particle_list = arcade.SpriteList()
 
         # Set up the player
-        self.player = Player(self, center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2)
+        self.player = Player(self, hp=self.player_init_hp, center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2)
         self.player_list.append(self.player)
 
         self.ui = HUD(self)
 
         #Spawn enemies
-        enemy_spawn_list = list(filter(lambda x: 'enemy' in x.name and 'spawn' in x.name, self.level_tile_map.get_tilemap_layer('info').tiled_objects))
+        info_layer = self.level_tile_map.get_tilemap_layer('info').tiled_objects
+        self.exit_door = list(filter(lambda x: x.name == 'exit_door', info_layer))
+        if self.exit_door:
+            self.exit_door = self.exit_door[0]
+            cx, cy = object_coords_to_game_coords(self.exit_door.coordinates, self.level_tile_map)
+            cy -= self.exit_door.size.height * 2
+            self.exit_door_label = Label(
+                "[S] Exit door",
+                color=arcade.color.WHITE,
+                font_size=14,
+                draw_background=True,
+                background_color=arcade.color.BLACK)
+            self.exit_door_label.x = cx - self.exit_door_label.content_width // 3
+            self.exit_door_label.y = cy + (self.exit_door.size.height * self.level_tile_map.scaling) + 8
+
+        enemy_spawn_list = list(filter(lambda x: 'enemy' in x.name and 'spawn' in x.name, info_layer))
         for point in enemy_spawn_list:
             cx, cy = object_coords_to_game_coords(point.coordinates, self.level_tile_map)
             if 'car' in point.name:
@@ -112,6 +134,7 @@ class Level(arcade.View):
                 self.boss = enemy
             enemy.center_y = cy + enemy.height // 2
             self.enemy_list.append(enemy)
+        
         self.scene.add_sprite_list_before('enemies', 'water',self.enemy_list)
         self.scene.add_sprite_list_before('player', 'water',self.player_list)
         self.scene.add_sprite_list_before('bullets', 'water',self.bullet_list)
@@ -143,6 +166,19 @@ class Level(arcade.View):
 
 
         # Draw all the sprites.
+
+        if self.over_exit_door:
+            self.exit_door_label.draw()
+
+            script_x, script_y = object_coords_to_game_coords(self.exit_door.coordinates, self.level_tile_map)
+            script_width = self.exit_door.size.width * self.level_tile_map.scaling
+            script_height = self.exit_door.size.height * self.level_tile_map.scaling
+
+            arcade.draw_rectangle_outline(
+                script_x + script_width / 2,
+                script_y - script_height / 2,
+                script_width, script_height, arcade.color.BLACK,
+                border_width=3)
 
         self.player_list.draw(pixelated=True)
         self.gun_list.draw(pixelated=True)
@@ -190,30 +226,34 @@ class Level(arcade.View):
         self.enemy_bullet_list.on_update(delta_time)
         self.enemy_list.on_update(delta_time)
         self.particle_list.on_update(delta_time)
+
+        if self.exit_door and sprite_collides_with_script_activator(self.player, self.exit_door, self.level_tile_map):
+            self.over_exit_door = True
+        else:
+            self.over_exit_door = False
         
-        water_collided = arcade.check_for_collision_with_list(self.player, self.scene['water'])
-        if len(water_collided) > 0:
+        if self.player.collides_with_list(self.scene['water']):
             self.player.hit(4)
 
         # entities collision logic
         # collision on player's bullet
         for b in self.bullet_list:
-            enemies_collided = arcade.check_for_collision_with_list(b, self.enemy_list)
+            enemies_collided = b.collides_with_list(self.enemy_list)
             if enemies_collided:
                 if enemies_collided[0].hit(b.damage):
-                    if not isinstance(enemies_collided[0], Boss) and enemies_collided[0].hp <= 0:
+                    if self.boss and not isinstance(enemies_collided[0], Boss) and enemies_collided[0].hp <= 0:
                         self.boss.hp = max(5, self.boss.hp - enemies_collided[0].score)
                     self.bullet_list.remove(b)
-            elif arcade.check_for_collision_with_list(b, self.scene["walls"]):
+            elif b.collides_with_list(self.scene["walls"]):
                 self.bullet_list.remove(b)
         
         # collision on player
-        enemies_collided = arcade.check_for_collision_with_list(self.player, self.enemy_list)
+        enemies_collided = self.player.collides_with_list(self.enemy_list)
         if enemies_collided:
             self.player.hit(enemies_collided[0].damage)
             self.health_label = f"Gunberg's health: {int(self.player.hp)}"
         
-        bullets_collided = arcade.check_for_collision_with_list(self.player, self.enemy_bullet_list)
+        bullets_collided = self.player.collides_with_list(self.enemy_bullet_list)
         if bullets_collided:
             if self.player.hit(bullets_collided[0].damage):
                 self.enemy_bullet_list.remove(bullets_collided[0])
@@ -228,6 +268,9 @@ class Level(arcade.View):
         """Called whenever a key is pressed. """
         if key == arcade.key.Z or key == arcade.key.SPACE:
             self.up_pressed = True
+        elif key == arcade.key.S:
+            if self.exit_door and self.over_exit_door:
+                self.next_level()
         elif key == arcade.key.Q:
             self.left_pressed = True
         elif key == arcade.key.D:
@@ -245,7 +288,10 @@ class Level(arcade.View):
             # skip to next level (this is a cheat used for debugging purposes)
             self.next_level()
         elif key == arcade.key.R:
-            self.restart_level()
+            if modifiers & arcade.key.MOD_SHIFT:
+                self.restart_game()
+            else:
+                self.restart_level()
         elif key == arcade.key.M:
             self.ass.toggle_mute()
         elif key == arcade.key.ESCAPE or key == arcade.key.P:

@@ -5,7 +5,7 @@ from src.actors.animated_sprite import AnimatedSprite
 
 class Player(AnimatedSprite):
 
-    def __init__(self, game, *args, **kwargs):
+    def __init__(self, game, hp=PLAYER_HP, *args, **kwargs):
         idle_textures = {
             Direction.RIGHT: [game.ass.textures["gunberg_right"][0], game.ass.textures["gunberg_right"][1]],
             Direction.LEFT: [game.ass.textures["gunberg_left"][0], game.ass.textures["gunberg_left"][1]]
@@ -30,7 +30,7 @@ class Player(AnimatedSprite):
         self.max_jumps = 2
         self.jump_cancelled = False
 
-        self.hp = PLAYER_HP
+        self.hp = hp
 
     def hit(self, damage):
         ret = super().hit(damage)

@@ -71,7 +71,7 @@ class EvilCar(AnimatedSprite):
         return ret
 
     def think(self, dt):
-        if arcade.check_for_collision_with_list(self, self.game.scene[self.collision_walls]):
+        if self.collides_with_list(self.game.scene["walls"]) or self.collides_with_list(self.game.scene["invis_walls"]):
             self.dir *= -1
             if self.facing_direction == Direction.RIGHT:
                 self.facing_direction = Direction.LEFT

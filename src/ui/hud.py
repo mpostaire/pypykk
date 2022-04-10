@@ -15,7 +15,7 @@ class HUD():
                                     draw_background=True)
 
         self.score_label = Label(f"Global warming: {self.game.score:.1f}°C",
-                                    x=SCREEN_WIDTH - 256,
+                                    x=SCREEN_WIDTH - 265,
                                     y=SCREEN_HEIGHT - 32,
                                     color=arcade.color.BLACK,
                                     font_size=18,

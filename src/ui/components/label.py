@@ -2,10 +2,11 @@ import arcade
 
 class Label():
 
-    def __init__(self, text, x=0, y=0, color=arcade.color.BLACK, font_size=12, draw_background=False, blink_time=0):
+    def __init__(self, text, x=0, y=0, color=arcade.color.BLACK, font_size=12, draw_background=False, background_color=arcade.color.WHITE, blink_time=0):
         self.color = color
         self.font_size = font_size
         self.draw_background = draw_background
+        self.background_color = background_color + (200,)
 
         # if we change its text after creation it breaks water hitboxes (very strange), so we only use this to compute size
         arcade_text = arcade.Text(text, x, y, color=self.color, font_size=self.font_size)
@@ -35,7 +36,7 @@ class Label():
                 (self.y + self.content_height // 2) - self.margin,
                 self.content_width + self.margin * 4,
                 self.content_height + self.margin * 2,
-                (255, 255, 255, 200))
+                color=self.background_color)
 
         if self.blink:
             arcade.draw_text(self.text, self.x, self.y, font_size=self.font_size, color=self.color)
